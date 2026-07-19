@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>夜市娃娃小岛 · 网页预览</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#12b3a6">
+  <link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --bg:#f4f1ea; --content:#fff; --ink:#4a4136; --ink2:#6b5a45; --sec:#978973; --line:#ece2d3;
+    --primary:#12b3a6; --primary-d:#0d938a; --primary-soft:#e3f6f3; --shadow:#cdbfab;
+    --pink:#f6a8b4; --purple:#b189e8; --blue:#7f9bf2; --yellow:#f5c752; --orange:#ef9a5c;
+    --teal:#4fc7bc; --green:#7cc47a; --red:#f2706a; --success:#57ac3f; --warning:#eab308; --error:#e05a5a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:#dfd9cd;color:var(--ink);
+    font-family:'Nunito','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-weight:500;
+    display:flex;justify-content:center;min-height:100vh;
+  }
+  /* 手机外观 */
+  .phone{
+    width:100%;max-width:420px;height:100vh;height:100dvh;background:var(--bg);
+    position:relative;display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,.18);
+  }
+  @media(min-width:480px){ .phone{margin:18px 0;border-radius:34px;min-height:auto;height:calc(100vh - 36px);max-height:880px} }
+  .navbar{
+    background:var(--primary);color:#fff;border-radius:0 0 22px 22px;
+    padding:16px 18px;box-shadow:0 4px 0 0 rgba(13,147,138,.45);
+    display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;
+  }
+  .navbar .t{font-size:18px;font-weight:800;letter-spacing:.02em}
+  .navbar .s{font-size:12px;font-weight:600;opacity:.92;margin-top:3px}
+  .navbar .badge{font-size:11px;font-weight:700;background:rgba(255,255,255,.22);padding:4px 9px;border-radius:20px}
+  .scroll{flex:1 1 auto;overflow-y:auto;padding:14px 14px 92px}
+  .scroll::-webkit-scrollbar{width:0}
+
+  .card{background:var(--content);border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(74,65,54,.05)}
+  .section-title{font-size:15px;font-weight:800;margin:16px 2px 10px}
+  .card-h{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+
+  .btn{border:none;border-radius:50px;padding:13px;font-weight:700;font-size:15px;color:var(--ink);background:#fff;box-shadow:0 2px 4px rgba(61,52,40,.08);text-align:center;line-height:1.2;cursor:pointer;width:100%}
+  .btn:active{transform:translateY(3px);box-shadow:none}
+  .btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 0 0 var(--primary-d)}
+  .btn-green{background:var(--success);color:#fff;box-shadow:0 4px 0 0 #468a32}
+  .btn-warn{background:var(--warning);color:#5a4a16;box-shadow:0 4px 0 0 #c69406}
+  .btn-danger{background:var(--error);color:#fff;box-shadow:0 4px 0 0 #b84545}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--sec);box-shadow:none}
+  .btn-sm{padding:8px 14px;font-size:13px;width:auto;display:inline-block}
+  .btn-xs{padding:6px 11px;font-size:12px;width:auto;display:inline-block;border-radius:50px}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{border-radius:18px;padding:13px;color:#fff;box-shadow:0 3px 0 0 rgba(74,65,54,.1)}
+  .stat .n{font-size:25px;font-weight:900;line-height:1}
+  .stat .l{font-size:11px;font-weight:700;margin-top:5px;display:block;opacity:.95}
+
+  .row{display:flex;align-items:center;gap:10px;background:var(--content);border:1.5px solid var(--line);border-radius:16px;padding:10px;margin-bottom:8px;box-shadow:0 2px 6px rgba(74,65,54,.04)}
+  .name{font-weight:800;font-size:14px}
+  .meta{font-size:12px;color:var(--sec);margin-top:4px;font-weight:600;line-height:1.5}
+  .tag{border-radius:50px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block}
+  .t-out{background:var(--error);color:#fff}.t-low{background:var(--warning);color:#5a4a16}
+  .t-ok{background:var(--success);color:#fff}.t-slow{background:#e0d6c2;color:#6b5a2a}
+  .thumb{width:54px;height:54px;border-radius:14px;border:1.5px solid var(--line);background:var(--primary-soft);flex:0 0 54px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px}
+  .thumb img{width:100%;height:100%;object-fit:cover}
+
+  .input{width:100%;background:#fbf9f4;border:1.5px solid var(--sec);border-radius:50px;padding:11px 16px;font-size:14px;color:var(--ink);font-weight:600;font-family:inherit}
+  .label{font-size:12px;font-weight:800;color:var(--ink2);margin:10px 0 4px;display:block}
+  .tip{font-size:12px;font-weight:600;color:var(--ink2);background:var(--primary-soft);border:1.5px solid #cfeae6;border-radius:12px;padding:10px;margin-top:8px;line-height:1.6}
+  .empty{text-align:center;color:var(--sec);padding:22px 0;font-size:13px;font-weight:600}
+  .op-bar{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .op-bar .btn-xs{flex:0 0 auto}
+  .op-del{color:var(--error);border-color:var(--error)}
+  .btn-del{background:var(--error);color:#fff;box-shadow:0 4px 0 0 #b84545;margin-top:16px}
+  .btn-del.armed{background:#a11f1f;box-shadow:0 4px 0 0 #6f1414;animation:delpulse 1s infinite}
+  @keyframes delpulse{0%,100%{opacity:1}50%{opacity:.65}}
+  .del-zone{margin-top:6px}
+  .del-divider{height:1px;background:var(--line);margin:18px 0 0}
+  .del-hint{font-size:12px;color:var(--sec);text-align:center;margin-top:8px;line-height:1.4}
+
+  /* 底部 tab */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1.5px solid var(--line);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:30}
+  .tab{flex:1;text-align:center;padding:6px 2px;color:var(--sec);font-size:11px;font-weight:700;cursor:pointer;border-radius:14px}
+  .tab .ic{font-size:21px;display:block;line-height:1.1;filter:grayscale(.3)}
+  .tab.on{color:var(--primary)}
+  .tab.on .ic{filter:none}
+  .fab{position:absolute;right:16px;bottom:74px;z-index:25;background:var(--primary);color:#fff;border:none;border-radius:50px;font-weight:800;font-size:14px;padding:12px 16px;box-shadow:0 5px 0 0 var(--primary-d);cursor:pointer}
+  .fab:active{transform:translateY(3px);box-shadow:none}
+
+  /* 弹层 */
+  .mask{position:fixed;inset:0;background:rgba(61,52,40,.4);z-index:40}
+  .sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;padding:18px 18px 26px;z-index:41;box-shadow:0 -4px 20px rgba(61,52,40,.18);max-width:420px;margin:0 auto;max-height:95vh;overflow-y:auto}
+  .sheet-h{font-size:17px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;padding-bottom:8px}
+  .x{border:none;background:var(--primary-soft);color:var(--primary-d);width:30px;height:30px;border-radius:50%;font-size:16px;font-weight:800;cursor:pointer}
+
+  /* 业绩日历 */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .cal-head .m{font-weight:800;font-size:15px}
+  .cal-head button{border:1.5px solid var(--line);background:#fff;border-radius:50px;padding:6px 12px;font-weight:800;cursor:pointer;color:var(--ink)}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .wd{text-align:center;font-size:11px;font-weight:800;color:var(--sec);padding:2px 0}
+  .cal-cell{height:46px;border-radius:10px;background:#f6f2ea;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;padding:2px;cursor:pointer}
+  .cal-cell .d{font-size:12px;font-weight:800;color:var(--ink)}
+  .cal-cell .r{font-size:9px;color:var(--ink2);margin-top:1px}
+  .cal-cell.lv0{background:#f6f2ea}
+  .cal-cell.lv1{background:#cdeee9}.cal-cell.lv2{background:#9dded6}.cal-cell.lv3{background:#5fc6ba}.cal-cell.lv4{background:var(--primary);color:#fff}
+  .cal-cell.lv4 .d,.cal-cell.lv4 .r{color:#fff}
+  .cal-cell.today .d{border:2px solid var(--yellow);border-radius:50%;width:20px;height:20px;line-height:16px;display:inline-block}
+  .cal-cell.sel{outline:2px solid var(--ink);outline-offset:-2px}
+  .cal-cell.blank{background:transparent;cursor:default}
+
+  /* 排行榜 */
+  .rank-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .rank-row .nm{flex:1;min-width:0}
+  .rank-row .bar{height:9px;background:var(--primary-soft);border-radius:50px;overflow:hidden;margin-top:4px}
+  .rank-row .bar i{display:block;height:100%;background:var(--primary);border-radius:50px}
+  .rank-row .v{font-weight:800;font-size:13px;white-space:nowrap;text-align:right}
+  .tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .tbl th,.tbl td{text-align:left;padding:8px 6px;border-bottom:1.5px solid var(--line)}
+  .tbl th{font-weight:800;background:var(--primary);color:#fff}
+  @media(min-width:480px){ .tbl th:first-child,.tbl td:first-child{border-radius:0} }
+  .sale-del{display:inline-block;color:#e35d6a;font-weight:800;font-size:12px;padding:3px 8px;border-radius:8px;background:rgba(227,93,106,0.1);cursor:pointer;white-space:nowrap}
+  .sale-del:active{opacity:.7}
+
+  .legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sec);font-weight:600;margin-top:8px;flex-wrap:wrap}
+  .legend .sw{width:12px;height:12px;border-radius:4px;display:inline-block}
+  .crop-stage{position:fixed;inset:0;background:rgba(61,52,40,.92);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center}
+  .crop-stage img{max-width:100%;max-height:70vh;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,.3);cursor:crosshair}
+  .crop-hint{color:#fff;font-weight:700;font-size:14px;margin-bottom:10px}
+  .crop-done{background:#fff;color:var(--primary-d);border:none;border-radius:50px;padding:10px 24px;font-weight:700;margin-top:12px;cursor:pointer}
+  .ai-grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:380px){ .ai-grid{grid-template-columns:1.1fr 0.9fr} }
+  .ai-img-wrap{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;position:relative;min-height:120px;max-height:260px;display:flex;align-items:center;justify-content:center}
+  .ai-img-wrap img{max-width:100%;max-height:260px;object-fit:contain}
+  .ai-img-note{position:absolute;bottom:0;left:0;right:0;background:rgba(74,65,54,.75);color:#fff;font-size:11px;font-weight:700;padding:5px;text-align:center}
+  .chip-list{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:50px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip:active{background:var(--primary-soft);border-color:var(--primary)}
+  .chip-price{border-color:var(--teal);color:var(--primary-d)}
+  .ai-item{border:1.5px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;background:#fff}
+  .ai-item-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ai-item-h .n{font-weight:800;font-size:14px}
+  .ai-item .thumb{width:48px;height:48px;border-radius:12px;flex:0 0 48px}
+  .inline-btn{display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);color:var(--primary-d);border:1.5px solid #cfeae6;border-radius:50px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="navbar">
+    <div>
+      <div class="t" id="navTitle">夜市娃娃小岛</div>
+      <div class="s" id="navSub">摆摊记账 · 补货提醒</div>
+    </div>
+    <div class="badge" id="navBadge">网页预览</div>
+  </div>
+  <div class="scroll" id="page"></div>
+  <button class="fab" id="fab" style="display:none" onclick="quickOpen()">⚡ 记一笔</button>
+  <div class="tabbar" id="tabbar"></div>
+</div>
+
+<script>
+/* ============ 全局报错兜底：任何错误都显示在页面上，不再白屏 ============ */
+function showFatal(msg){
+  var el=document.getElementById('page'); if(!el) return;
+  el.innerHTML='<div class="card" style="border:2px solid #c92a2a"><div class="card-h" style="color:#c92a2a">⚠ 页面出错</div><div class="meta" style="white-space:pre-wrap;word-break:break-all">'+String(msg).replace(/</g,'&lt;')+'</div><div class="meta">请刷新重试；如仍不行，把这段红字发我即可。</div></div>';
+}
+window.addEventListener('error', function(e){ showFatal((e&&e.message)||(e&&e.error)||'未知错误'); });
+
+/* ============ 数据存储（localStorage 模拟小程序 wx.storage） ============ */
+const KEY='ye_shi_wa_wa_web';
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function z(n){return ('0'+n).slice(-2);}
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+function daysAgoISO(n){const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+function load(){
+  const r=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(r&&r.products) DB=r;
+  if(!DB.settings) DB.settings={restockDays:7,periodDays:30,defaultSafety:10,catTemplates:[],slowDays:14,slowThreshold:0.2,aiApiKey:''};
+  if(DB.settings.defaultSafety==null) DB.settings.defaultSafety=10;
+  if(!Array.isArray(DB.settings.catTemplates)) DB.settings.catTemplates=[];
+  if(DB.settings.slowDays==null) DB.settings.slowDays=14;
+  if(DB.settings.slowThreshold==null) DB.settings.slowThreshold=0.2;
+  if(DB.settings.aiApiKey==null) DB.settings.aiApiKey='';
+  if(!DB.seeded&&(!DB.products||!DB.products.length)){
+    const s=seed();DB.products=s.products;DB.tx=s.tx;DB.seeded=true;save();
+  }
+  return DB;
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(DB));}
+let DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowThreshold:0.2,aiApiKey:''}};
+
+/* 图片压缩：手机拍的照片动辄好几M，直接转 base64 存 localStorage 会卡死甚至超容量。
+   这里缩到最长边 800px、JPEG 0.72，单张一般 50~120KB，既不卡也存得下。 */
+function compressImage(file,cb,maxDim,quality){
+  maxDim=maxDim||800;quality=quality||0.72;
+  const r=new FileReader();
+  r.onload=function(){
+    const img=new Image();
+    img.onload=function(){
+      let w=img.width,h=img.height;
+      if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}
+      else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
+      try{
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        cb(c.toDataURL('image/jpeg',quality));
+      }catch(e){cb(r.result);}
+    };
+    img.onerror=function(){cb(r.result);};
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+
+/* ============ 示例数据（与小程序一致） ============ */
+function seed(){
+  const base=[
+    {name:'库洛米挂件',cat:'三丽鸥',cost:5,price:15,stock:12,safe:20,rate:2.0},
+    {name:'玲娜贝儿挂件',cat:'三丽鸥',cost:8,price:20,stock:3,safe:15,rate:3.0},
+    {name:'三丽鸥盲盒',cat:'盲盒',cost:12,price:30,stock:40,safe:10,rate:0.2},
+    {name:'星之卡比挂件',cat:'卡通',cost:4,price:12,stock:0,safe:15,rate:1.5},
+    {name:'玉桂狗钥匙扣',cat:'钥匙扣',cost:3,price:10,stock:25,safe:12,rate:0.8},
+    {name:'屁桃君挂件',cat:'卡通',cost:6,price:18,stock:5,safe:10,rate:1.0},
+    {name:'挂饰 新年平安果 kt',cat:'三丽鸥',cost:12.1,price:35,stock:0,safe:10,rate:2.5}
+  ];
+  const products=base.map(b=>({id:uid(),name:b.name,cat:b.cat||'',cost:b.cost,price:b.price,stock:b.stock,safetyStock:b.safe,unit:'个',image:'',createdAt:Date.now()}));
+  const tx=[];
+  base.forEach((b,i)=>{const pid=products[i].id;for(let d=0;d<30;d++){const qty=Math.max(0,Math.round(b.rate+(Math.sin(d*1.3+i)*0.6)));if(qty>0)tx.push({id:uid(),productId:pid,type:'sale',qty:qty,date:daysAgoISO(d),note:''});}});
+  return {products,tx};
+}
+
+/* ============ 统计算法（与小程序一致） ============ */
+function analytics(p,db){
+  const settings=db.settings,now=Date.now(),pm=settings.periodDays*86400000;
+  const sales=db.tx.filter(t=>t.productId===p.id&&t.type==='sale'&&(now-new Date(t.date).getTime())<=pm);
+  const totalSold=sales.reduce((s,t)=>s+t.qty,0);
+  const avgDaily=totalSold/settings.periodDays;
+  const coverDays=avgDaily>0?p.stock/avgDaily:Infinity;
+  const need=Math.max(0,Math.ceil(avgDaily*settings.restockDays)-p.stock);
+  const status=p.stock<=0?'out':(p.stock<p.safetyStock?'low':'ok');
+  // 滞销判断：仅当①还有库存 ②上架满 slowDays 天（新品不算） ③日均<slowThreshold 才算滞销
+  const ageDays=p.createdAt?(now-p.createdAt)/86400000:999;
+  const slowDays=settings.slowDays||14, slowThreshold=settings.slowThreshold!=null?settings.slowThreshold:0.2;
+  const slow=p.stock>0&&ageDays>=slowDays&&avgDaily<slowThreshold;
+  return {totalSold,avgDaily,coverDays,need,status,slow};
+}
+function todaySales(db){const tod=todayISO();let qty=0,rev=0,cost=0;db.tx.forEach(x=>{if(x.type==='sale'&&x.date===tod){qty+=x.qty;const p=db.products.find(y=>y.id===x.productId);const amt=x.amount!=null?x.amount:(p?p.price*x.qty:0);rev+=amt;cost+=(p?p.cost*x.qty:0);}});return{qty,rev,cost,profit:rev-cost};}
+function monthSales(db){const m=todayISO().slice(0,7);let qty=0,rev=0,cost=0;db.tx.forEach(x=>{if(x.type==='sale'&&x.date.slice(0,7)===m){qty+=x.qty;const p=db.products.find(y=>y.id===x.productId);const amt=x.amount!=null?x.amount:(p?p.price*x.qty:0);rev+=amt;cost+=(p?p.cost*x.qty:0);}});return{qty,rev,cost,profit:rev-cost};}
+
+/* ============ 全局状态 ============ */
+let cur='board';
+const TABS=[
+  {k:'board',ic:'📊',t:'看板'},{k:'products',ic:'🧸',t:'商品'},
+  {k:'performance',ic:'🏆',t:'业绩'},{k:'restock',ic:'📦',t:'补货'},{k:'settings',ic:'⚙️',t:'设置'}
+];
+let calState={y:new Date().getFullYear(),m:new Date().getMonth(),selDay:''};
+let salesExpanded=false;
+
+/* ============ 渲染骨架 ============ */
+function renderTabbar(){
+  document.getElementById('tabbar').innerHTML=TABS.map(t=>
+    `<div class="tab ${t.k===cur?'on':''}" onclick="go('${t.k}')"><span class="ic">${t.ic}</span>${t.t}</div>`).join('');
+}
+function go(k){cur=k;const fab=document.getElementById('fab');
+  if(k==='board'||k==='restock'){fab.style.display='block';fab.textContent=k==='board'?'⚡ 记一笔':'🛒 记补货';}
+  else fab.style.display='none';
+  renderTabbar();render();}
+function quickOpen(){ if(cur==='restock') openSheet('purchase',undefined,'补货'); else openSheet('sale'); }
+
+function toast(msg){
+  let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';document.body.appendChild(el);}
+  el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1400);
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function thumbHTML(p){return p.image?`<img src="${p.image}">`:'🧸';}
+
+/* ============ 各页面 ============ */
+function render(){
+  const T={board:'夜市娃娃小岛',products:'我的商品',performance:'销售业绩',restock:'智能补货',settings:'参数设置'};
+  const S={board:'摆摊记账 · 补货提醒',products:'管理你的娃娃挂件',performance:'看营业额与排行',restock:'该进什么、别进什么',settings:'周期与数据备份'};
+  document.getElementById('navTitle').textContent=T[cur];
+  document.getElementById('navSub').textContent=S[cur];
+  ({board:renderBoard,products:renderProducts,performance:renderPerformance,restock:renderRestock,settings:renderSettings}[cur])();
+}
+
+function renderBoard(){
+  const db=DB;let out=0,low=0,slow=0;
+  const items=db.products.map(p=>({p,a:analytics(p,db)}));
+  items.forEach(x=>{if(x.a.status==='out')out++;else if(x.a.status==='low')low++;if(x.a.slow)slow++;});
+  const alerts=items.filter(x=>x.a.status!=='ok').sort((x,y)=>x.a.status==='out'?-1:1)
+    .map(x=>({id:x.p.id,name:x.p.name,status:x.a.status,stock:x.p.stock,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays),avg:x.a.avgDaily.toFixed(1),need:x.a.need,image:x.p.image}));
+  const slows=items.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>x.a.avgDaily-x.a.avgDaily)
+    .map(x=>({id:x.p.id,name:x.p.name,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays),total:x.a.totalSold}));
+  let h=`
+  <div class="stat-grid">
+    <div class="stat" style="background:var(--teal)"><div class="n">${db.products.length}</div><div class="l">商品种类</div></div>
+    <div class="stat" style="background:var(--red)"><div class="n">${out}</div><div class="l">缺货</div></div>
+    <div class="stat" style="background:var(--yellow);color:#5a4a16"><div class="n">${low}</div><div class="l">预警</div></div>
+    <div class="stat" style="background:var(--blue)"><div class="n">${slow}</div><div class="l">滞销</div></div>
+  </div>
+  <div class="section-title">⚠ 需要关注</div>`;
+  if(alerts.length){
+    h+=alerts.map(a=>`
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="thumb" onclick="preview('${a.image}')">${thumbHTML(a)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="name">${esc(a.name)} <span class="tag ${a.status==='out'?'t-out':'t-low'}">${a.status==='out'?'缺货':'预警'}</span></div>
+          <div class="meta">库存 ${a.stock} · 日均 ${a.avg} · 还能卖 ${a.cover} 天</div>
+          ${a.need>0?`<div class="meta" style="color:#c92a2a">建议进货：${a.need}</div>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+  }else h+=`<div class="empty">暂时都安全 ✅</div>`;
+  h+=`<div class="section-title">🐌 滞销观察</div>`;
+  if(slows.length){
+    h+=slows.map(s=>`
+    <div class="card">
+      <div class="name">${esc(s.name)} <span class="tag t-slow">滞销</span></div>
+      <div class="meta">近30天仅卖 ${s.total} 件 · 库存可卖 ${s.cover} 天</div>
+    </div>`).join('');
+  }else h+=`<div class="empty">没有滞销商品，赞 👍</div>`;
+  h+=`<div class="tip">提示：点右下角「⚡记一笔」可快速记录卖出或进货；想对某商品单独操作，去「商品」页。</div>`;
+  document.getElementById('page').innerHTML=h;
+}
+
+function renderProducts(){
+  const db=DB;
+  const list=db.products.map(p=>{const a=analytics(p,db);return{id:p.id,name:p.name,cat:p.cat,cost:p.cost,price:p.price,stock:p.stock,safe:p.safetyStock,image:p.image,status:a.status,cover:a.coverDays===Infinity?'∞':Math.round(a.coverDays)};});
+  let h=`<button class="btn btn-primary" onclick="openAdd()">＋ 新增商品</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="batchImport()">🖼 批量选图导入</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="aiRecognize()">🤖 识别拼多多价格</button>`;
+  if(list.length){
+    h+=list.map(it=>`
+    <div class="card">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="thumb" onclick="preview('${it.image}')">${thumbHTML(it)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="name">${esc(it.name)} <span class="tag ${it.status==='out'?'t-out':(it.status==='low'?'t-low':'t-ok')}">${it.status==='out'?'缺货':(it.status==='low'?'预警':'正常')}</span></div>
+          <div class="meta">${esc(it.cat)||'未分类'} · 进¥${it.cost} / 售¥${it.price}</div>
+          <div class="meta">库存 ${it.stock} / ${it.safe}（预警线）· 还能卖 ${it.cover}天</div>
+        </div>
+      </div>
+      <div class="op-bar">
+        <button class="btn btn-green btn-xs" onclick="openSheet('sale','${it.id}')">卖出</button>
+        <button class="btn btn-primary btn-xs" onclick="openSheet('purchase','${it.id}')">进货</button>
+        <button class="btn btn-ghost btn-xs" onclick="openEdit('${it.id}')">编辑</button>
+      </div>
+    </div>`).join('');
+  }else h+=`<div class="empty">还没有商品，点上方「新增商品」</div>`;
+  document.getElementById('page').innerHTML=h;
+}
+
+function renderPerformance(){
+  const db=DB;const t=todaySales(db),m=monthSales(db);
+  const arr=db.products.map(p=>({p,a:analytics(p,db)}));
+  const rank=arr.slice().sort((x,y)=>y.a.totalSold-x.a.totalSold).slice(0,8);
+  const maxS=rank.length&&rank[0].a.totalSold?rank[0].a.totalSold:1;
+  const rankOut=rank.filter(x=>x.a.totalSold>0).map(x=>({id:x.p.id,name:x.p.name,image:x.p.image,total:x.a.totalSold,rev:Math.round(db.tx.filter(tx=>tx.productId===x.p.id&&tx.type==='sale').reduce((s,tx)=>{const pp=db.products.find(y=>y.id===tx.productId);return s+(tx.amount!=null?tx.amount:(pp?pp.price*tx.qty:0));},0)),pct:Math.max(4,Math.round(x.a.totalSold/maxS*100)),slow:x.a.slow}));
+  const names={};db.products.forEach(p=>names[p.id]=p.name);
+  const sales=db.tx.filter(x=>x.type==='sale').sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,60)
+    .map(x=>{const p=db.products.find(y=>y.id===x.productId);const money=x.amount!=null?x.amount:(p?p.price*x.qty:0);return{id:x.id,name:names[x.productId]||'已删除',qty:x.qty,date:x.date,note:x.note,money:Math.round(money)};});
+  // 售出记录默认只显示近 3 天，点「展开」看全部
+  const recentDates=[...new Set(sales.map(s=>s.date))].slice(0,3);
+  const salesView=salesExpanded?sales:sales.filter(s=>recentDates.includes(s.date));
+  // 日历
+  const y=calState.y,mth=calState.m,prefix=y+'-'+z(mth+1)+'-';
+  const priceOf={};db.products.forEach(p=>priceOf[p.id]=p.price);
+  const revByDay={};db.tx.forEach(x=>{if(x.type==='sale'&&x.date.indexOf(prefix)===0){const d=parseInt(x.date.slice(8,10),10);revByDay[d]=(revByDay[d]||0)+(x.amount!=null?x.amount:(priceOf[x.productId]||0)*x.qty);}});
+  const firstWd=new Date(y,mth,1).getDay(),daysInMonth=new Date(y,mth+1,0).getDate(),todayI=todayISO();
+  let total=0,activeDays=0,best=0;for(let d=1;d<=daysInMonth;d++){const r=Math.round(revByDay[d]||0);total+=r;if(r>0)activeDays++;if(r>best)best=r;}
+  const cells=[];
+  for(let i=0;i<firstWd;i++)cells.push({day:'',rev:0,blank:true});
+  for(let d=1;d<=daysInMonth;d++){const iso=prefix+z(d);const r=Math.round(revByDay[d]||0);let lv=0;if(r>0)lv=best>0?Math.min(4,Math.ceil(r/best*4)):1;cells.push({day:d,iso,rev:r,lv,today:iso===todayI,sel:iso===calState.selDay});}
+  while(cells.length%7!==0)cells.push({day:'',rev:0,blank:true});
+  const wd=['日','一','二','三','四','五','六'];
+  let calHtml=`<div class="cal-head"><button onclick="prevMonth()">‹ 上月</button><div class="m">${y}年${mth+1}月</div><button onclick="nextMonth()">下月 ›</button></div>
+  <div class="cal-grid">${wd.map(w=>`<div class="wd">${w}</div>`).join('')}`;
+  cells.forEach(c=>{if(c.blank)calHtml+=`<div class="cal-cell blank"></div>`;else calHtml+=`<div class="cal-cell lv${c.lv} ${c.today?'today':''} ${c.sel?'sel':''}" onclick="tapDay('${c.iso}')"><span class="d">${c.day}</span><span class="r">${c.rev>0?'¥'+c.rev:'·'}</span></div>`;});
+  calHtml+=`</div>
+  <div class="legend"><span class="sw" style="background:#f6f2ea"></span>无营业额
+  <span class="sw" style="background:#cdeee9"></span><span class="sw" style="background:#9dded6"></span><span class="sw" style="background:#5fc6ba"></span><span class="sw" style="background:var(--primary)"></span>越高越好</div>`;
+  // 选中当天明细
+  let dayHtml='';
+  if(calState.selDay){
+    const dayList=db.tx.filter(x=>x.type==='sale'&&x.date===calState.selDay).map(x=>{const money=Math.round(x.amount!=null?x.amount:(priceOf[x.productId]||0)*x.qty);return{id:x.id,name:names[x.productId]||'已删除',qty:x.qty,note:x.note,money};});
+    let dq=0,dm=0;dayList.forEach(x=>{dq+=x.qty;dm+=x.money;});
+    dayHtml=`<div class="card"><div class="card-h">📅 ${calState.selDay} 明细</div>
+    <div class="meta" style="margin-bottom:8px">共卖 ${dq} 件 · 营业额 <b>¥${dm}</b></div>
+    ${dayList.length?dayList.map(x=>`<div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name">${esc(x.name)}</div><div class="meta">${x.qty} 件${x.note?' · '+esc(x.note):''}</div></div><div style="font-weight:800">¥${x.money}</div><span class="sale-del" style="margin-left:8px" onclick="delSale('${x.id}')">删除</span></div>`).join(''):'<div class="empty">当天无售出</div>'}</div>`;
+  }
+  let h=`
+  <div class="stat-grid">
+    <div class="stat" style="background:var(--primary)"><div class="n">${t.qty}</div><div class="l">今日卖出(件)</div></div>
+    <div class="stat" style="background:var(--orange)"><div class="n">¥${Math.round(t.rev)}</div><div class="l">今日营业额</div></div>
+    <div class="stat" style="background:var(--purple)"><div class="n">${m.qty}</div><div class="l">本月卖出(件)</div></div>
+    <div class="stat" style="background:var(--pink)"><div class="n">¥${Math.round(m.rev)}</div><div class="l">本月营业额</div></div>
+    <div class="stat" style="background:var(--green)"><div class="n">¥${Math.round(t.profit)}</div><div class="l">今日利润</div></div>
+    <div class="stat" style="background:var(--teal)"><div class="n">¥${Math.round(m.profit)}</div><div class="l">本月利润</div></div>
+  </div>
+  <div class="section-title">📅 营业额日历</div>
+  <div class="card">
+    ${calHtml}
+    <div class="meta" style="margin-top:8px">本月营业额 <b>¥${total}</b> · 营业 ${activeDays} 天 · 最高单日 ¥${best}（点格子看当天明细）</div>
+  </div>
+  ${dayHtml}
+  <div class="section-title">🏆 销售排行（近${db.settings.periodDays}天）</div>
+  <div class="card">${rankOut.length?rankOut.map(r=>`
+    <div class="rank-row">
+      <div class="thumb" style="width:40px;height:40px;flex:0 0 40px" onclick="preview('${r.image}')">${r.image?`<img src="${r.image}">`:'🧸'}</div>
+      <div class="nm"><div class="name" style="font-size:13px">${esc(r.name)} ${r.slow?'<span class="tag t-slow">滞销</span>':''}</div><div class="bar"><i style="width:${r.pct}%"></i></div></div>
+      <div class="v">${r.total}件<br>¥${r.rev}</div>
+    </div>`).join(''):'<div class="empty">暂无销售数据</div>'}</div>
+  <div class="section-title">🧾 售出记录 ${salesExpanded?'':'（近3天）'}</div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl"><thead><tr><th>商品</th><th>数量</th><th>金额</th><th>日期</th><th>操作</th></tr></thead><tbody>
+    ${salesView.length?salesView.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.qty}</td><td>¥${s.money}</td><td>${s.date.slice(5)}</td><td><span class="sale-del" onclick="delSale('${s.id}')">删除</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty">暂无记录</td></tr>'}</tbody></table>
+  </div>
+  ${sales.length>salesView.length?`<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">展开全部（${sales.length} 条）</button>`:(salesExpanded?'<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">收起</button>':'')}`;
+  document.getElementById('page').innerHTML=h;
+}
+
+function renderRestock(){
+  const db=DB;const arr=db.products.map(p=>({p,a:analytics(p,db)}));
+  const needList=arr.filter(x=>x.a.need>0).sort((x,y)=>y.a.avgDaily-x.a.avgDaily)
+    .map(x=>({id:x.p.id,name:x.p.name,image:x.p.image,stock:x.p.stock,avg:x.a.avgDaily.toFixed(1),need:x.a.need,cost:x.p.cost,price:x.p.price}));
+  const slowList=arr.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>x.a.avgDaily-x.a.avgDaily)
+    .map(x=>({id:x.p.id,name:x.p.name,total:x.a.totalSold,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays)}));
+  const needQty=needList.reduce((s,x)=>s+x.need,0);
+  const cost=Math.round(needList.reduce((s,x)=>s+x.need*x.cost,0));
+  const income=Math.round(needList.reduce((s,x)=>s+x.need*x.price,0));
+  let h=`
+  <div class="stat-grid">
+    <div class="stat" style="background:var(--primary)"><div class="n">${needQty}</div><div class="l">需补货总数</div></div>
+    <div class="stat" style="background:var(--orange)"><div class="n">¥${cost}</div><div class="l">预计进货成本</div></div>
+    <div class="stat" style="background:var(--pink)"><div class="n">¥${income}</div><div class="l">预计可收回</div></div>
+    <div class="stat" style="background:var(--blue)"><div class="n">${slowList.length}</div><div class="l">滞销别进</div></div>
+  </div>
+  <div class="tip">按「日均销量 × ${db.settings.restockDays}天 − 现有库存」计算；滞销（上架满${db.settings.slowDays||14}天且日均&lt;${(db.settings.slowThreshold!=null?db.settings.slowThreshold:0.2)}）已排除。</div>
+  <div class="section-title">📥 建议进货清单</div>
+  <div class="card" style="padding:0;overflow:hidden">${needList.length?`
+    <table class="tbl"><thead><tr><th>商品</th><th>库存</th><th>日均</th><th>建议进</th><th>补货</th></tr></thead><tbody>
+    ${needList.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.stock}</td><td>${x.avg}</td><td><b style="color:var(--primary-d)">${x.need}</b></td><td><button class="btn btn-primary btn-xs" onclick="openSheet('purchase','${x.id}','补货')">记</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂时不用补货，库存充足 👍</div>'}</div>
+  <div class="section-title">🐌 滞销别进清单</div>
+  <div class="card">${slowList.length?slowList.map(x=>`<div style="padding:6px 0"><div class="name" style="font-size:14px">${esc(x.name)} <span class="tag t-slow">滞销</span></div><div class="meta">近30天仅卖 ${x.total} 件 · 库存可卖 ${x.cover} 天</div></div>`).join(''):'<div class="empty">没有滞销商品，棒！</div>'}</div>`;
+  document.getElementById('page').innerHTML=h;
+}
+
+function renderSettings(){
+  const db=DB;
+  let h=`
+  <div class="card">
+    <div class="card-h">⚙️ 统计参数</div>
+    <label class="label">补货周期（天）：按日均销量推算未来要备多少</label>
+    <input class="input" id="restockDays" type="number" value="${db.settings.restockDays}">
+    <label class="label">统计周期（天）：用于计算日均销量</label>
+    <input class="input" id="periodDays" type="number" value="${db.settings.periodDays}">
+    <label class="label">默认预警线：新增商品时自动填入，库存低于它就提示补货</label>
+    <input class="input" id="defaultSafety" type="number" value="${db.settings.defaultSafety!=null?db.settings.defaultSafety:10}" placeholder="例如 10">
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveSettings()">保存参数</button>
+  </div>
+  <div class="card">
+    <div class="card-h">🏷 分类模板</div>
+    <div class="meta" style="margin-bottom:10px">新增/编辑商品时直接选，不用手打。点 × 可删除（已用该分类的商品不受影响）。</div>
+    <div id="catTplList">${catTemplateListHTML()}</div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <input class="input" id="catTplNew" placeholder="如：自嘲熊">
+      <button class="btn btn-primary btn-xs" style="flex:0 0 auto" onclick="addCatTemplate()">添加</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-h">🐌 滞销判定</div>
+    <label class="label">上架满多少天算「老商品」（这之前不计入滞销）</label>
+    <input class="input" id="slowDays" type="number" value="${db.settings.slowDays!=null?db.settings.slowDays:14}">
+    <label class="label">日均销量低于多少算滞销</label>
+    <input class="input" id="slowThreshold" type="number" step="0.1" value="${db.settings.slowThreshold!=null?db.settings.slowThreshold:0.2}">
+    <div class="tip">同时满足：①还有库存 ②上架满上面天数 ③日均低于阈值，才标记滞销；否则正常。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">🤖 智能识别</div>
+    <div class="meta" style="margin-bottom:10px">价格识别已内置在「商品」页的「🤖 识别拼多多价格」里。不填 Key 时<b>完全在手机本地运行</b>，免费但准确度有限；填入 Key 后改走云端视觉模型，识别商品名/价格更准。</div>
+    <label class="label">阿里云百炼 API Key（可选）</label>
+    <input class="input" id="aiApiKey" placeholder="sk-xxxxxxxx" value="${esc(db.settings.aiApiKey||'')}" style="font-family:monospace">
+    <div class="tip" style="margin-top:8px">Key 只存在本浏览器，不会上传到我的服务器。没有 Key 仍可继续使用本地识别。获取方式：阿里云百炼 → 密钥管理 → 创建 API Key。</div>
+  </div>
+  <div class="card">
+    <div class="card-h">💾 数据备份</div>
+    <div class="meta" style="margin-bottom:10px">数据保存在本浏览器，换设备请先导出备份。</div>
+    <button class="btn btn-green" onclick="exportData()">导出备份（下载JSON）</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="importData()">导入备份（选JSON文件）</button>
+    <button class="btn btn-danger" style="margin-top:8px" onclick="clearSample()">清空示例数据</button>
+  </div>
+  <div class="tip">网页预览版数据存于当前浏览器（localStorage）。想正式进微信，请按「微信小程序落地方案」把 miniapp/ 导入开发者工具发布（免费）。</div>`;
+  document.getElementById('page').innerHTML=h;
+}
+
+/* ============ 交互逻辑 ============ */
+function saveSettings(){
+  const rd=parseInt(document.getElementById('restockDays').value,10)||7;
+  const pd=parseInt(document.getElementById('periodDays').value,10)||30;
+  const dsEl=document.getElementById('defaultSafety');
+  const ds=dsEl?parseInt(dsEl.value,10):10;
+  const sd=parseInt(document.getElementById('slowDays').value,10);
+  const st=parseFloat(document.getElementById('slowThreshold').value);
+  const akEl=document.getElementById('aiApiKey');
+  const ak=akEl?akEl.value.trim():'';
+  DB.settings.restockDays=rd;DB.settings.periodDays=pd;DB.settings.defaultSafety=isNaN(ds)?10:ds;
+  DB.settings.slowDays=isNaN(sd)?14:sd;DB.settings.slowThreshold=isNaN(st)?0.2:st;
+  DB.settings.aiApiKey=ak;
+  save();toast('已保存');render();
+}
+function catTemplateListHTML(){
+  const tpl=DB.settings.catTemplates||[];
+  if(!tpl.length) return '<div class="empty" style="padding:10px 0">还没有分类，下面添加或在新增商品时点「＋ 新建分类」</div>';
+  return tpl.map(function(c,i){return '<div class="row" style="margin-bottom:6px"><div style="flex:1" class="name">'+esc(c)+'</div><span class="sale-del" onclick="delCatTemplate('+i+')">× 删除</span></div>';}).join('');
+}
+function addCatTemplate(){
+  const v=(document.getElementById('catTplNew').value||'').trim();
+  if(!v){toast('请输入分类名');return;}
+  const tpl=DB.settings.catTemplates||(DB.settings.catTemplates=[]);
+  if(tpl.indexOf(v)!==-1){toast('已存在');return;}
+  tpl.push(v);save();renderSettings();
+}
+function delCatTemplate(i){
+  const tpl=DB.settings.catTemplates||[];
+  if(i<0||i>=tpl.length)return;
+  if(!confirm('删除分类模板「'+tpl[i]+'」？已用该分类的商品不受影响。'))return;
+  tpl.splice(i,1);save();renderSettings();
+}
+function exportData(){
+  const json=JSON.stringify(DB);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='yeshi_backup_'+todayISO().replace(/-/g,'')+'.json';a.click();
+  URL.revokeObjectURL(a.href);toast('已导出文件');
+}
+function importData(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{let data;try{data=JSON.parse(r.result);}catch(e){toast('文件无效');return;}
+      if(!data.products){toast('缺少商品数据');return;}
+      if(confirm('导入将覆盖当前所有数据，确定继续？')){if(data.settings===undefined)data.settings={restockDays:7,periodDays:30};DB=data;save();toast('导入成功');render();}};
+    r.readAsText(f);};
+  inp.click();
+}
+function clearSample(){
+  if(confirm('将删除全部商品和交易记录，且不会恢复示例数据。确定？')){DB.products=[];DB.tx=[];save();toast('已清空');render();}
+}
+
+/* ============ 分类模板（下拉选择，不再手打） ============ */
+function catOptionsHTML(selected){
+  const tpl=(DB.settings.catTemplates||[]).slice();
+  if(selected && tpl.indexOf(selected)===-1) tpl.push(selected);
+  let h=tpl.map(function(c){return '<option value="'+esc(c)+'"'+(c===selected?' selected':'')+'>'+esc(c)+'</option>';}).join('');
+  h+='<option value="__new__">＋ 新建分类…</option>';
+  return h;
+}
+function onCatChange(selId){
+  const sel=document.getElementById(selId);if(!sel)return;
+  if(sel.value==='__new__'){
+    const n=(window.prompt('输入新分类名称：','')||'').trim();
+    if(n){
+      const tpl=DB.settings.catTemplates||(DB.settings.catTemplates=[]);
+      if(tpl.indexOf(n)===-1){tpl.push(n);save();}
+      sel.innerHTML=catOptionsHTML(n);sel.value=n;sel.dataset.last=n;
+    } else { sel.value=sel.dataset.last||''; }
+  } else { sel.dataset.last=sel.value; }
+}
+
+/* ============ 智能识别（浏览器本地 OCR，无需任何 Key / 接口） ============ */
+let _tessLoad=null;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(_tessLoad) return _tessLoad;
+  _tessLoad=new Promise(function(res,rej){
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
+    s.onload=function(){res(window.Tesseract);};
+    s.onerror=function(){rej(new Error('识别组件加载失败'));};document.head.appendChild(s);
+  });
+  return _tessLoad;
+}
+function aiRecognize(){
+  const h=`<div class="mask" onclick="aiClose()"></div>
+  <div class="sheet">
+    <div class="sheet-h">🤖 识别拼多多价格（支持一张图多个商品）<button class="x" onclick="aiClose()">×</button></div>
+    <label class="label">上传拼多多截图 / 商品图</label>
+    <input class="input" id="aiFile" type="file" accept="image/*" style="padding:8px" onchange="aiFileChosen()">
+    <div id="aiPrev" style="margin-top:8px"></div>
+    <button class="btn btn-primary" id="aiRunBtn" style="margin-top:12px" onclick="aiRun()" disabled>开始识别</button>
+    <button class="btn btn-ghost" id="aiRegionBtn" style="margin-top:8px" onclick="aiRegionStart()">✂️ 框选单品识别（多个商品更准）</button>
+    <div id="aiLoading" class="meta" style="margin-top:10px;display:none"></div>
+    <div id="aiResult" style="margin-top:12px"></div>
+    <div class="tip">两种用法：①点「开始识别」整张图自动识别多个商品；②点「框选单品识别」拖动框住单个商品（名称+价格），松手即识别并生成一张卡片，几个商品就框几次。都无需任何 Key。</div>
+  </div>`;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+}
+function aiClose(){document.querySelectorAll('.mask,.sheet,.crop-stage').forEach(e=>e.remove());window._aiImg='';window._aiItems=[];}
+function aiFileChosen(){
+  const f=document.getElementById('aiFile').files[0];if(!f)return;
+  window._aiRaw=f;
+  compressImage(f,function(d){window._aiImg=d;document.getElementById('aiPrev').innerHTML='<div class="ai-img-wrap" style="max-height:260px"><img src="'+d+'" style="max-width:100%;max-height:260px;object-fit:contain"></div>';document.getElementById('aiRunBtn').disabled=false;},1024,0.82);
+}
+function aiRun(){
+  if(!window._aiImg){toast('请先上传图片');return;}
+  const btn=document.getElementById('aiRunBtn');btn.disabled=true;
+  const ld=document.getElementById('aiLoading');if(ld){ld.style.display='block';ld.textContent='正在识别…';}
+  if(DB.settings.aiApiKey){
+    aiRunAPI().catch(function(err){
+      if(ld)ld.textContent='云端失败，改用本地识别…';
+      aiRunLocal(btn,ld);
+    });
+  } else {
+    aiRunLocal(btn,ld);
+  }
+}
+function aiRunLocal(btn,ld){
+  if(ld)ld.textContent='图像增强中…';
+  preprocessForOCR(window._aiImg,function(proc){
+    loadTesseract().then(function(Tess){
+      if(ld)ld.textContent='识别中… 0%';
+      return Tess.recognize(proc,'chi_sim+eng',{logger:function(m){if(m.status==='recognizing text'&&ld)ld.textContent='识别中… '+Math.round(m.progress*100)+'%';}});
+    }).then(function(r){
+      if(ld)ld.style.display='none';
+      aiBuildMulti(r.data.text||'');
+    }).catch(function(err){
+      if(ld)ld.style.display='none';btn.disabled=false;
+      toast('识别失败：'+(err&&err.message||err)+'（可手动填写）');
+    });
+  });
+}
+function aiRunAPI(){
+  return new Promise(function(res,rej){
+    const ld=document.getElementById('aiLoading');if(ld)ld.textContent='正在调用云端识别…';
+    const key=DB.settings.aiApiKey;
+    const prompt=`你是电商订单识别助手。请识别这张电商订单截图中的每个商品，按顺序返回 JSON 数组，不要任何解释和 markdown 代码块：
+[
+  {"name":"商品完整名称","cost":商品单价数字,"qty":购买数量}
+]
+要求：
+- 只提取商品本身，不要店铺名、运费、优惠、实付总价、订单总价等
+- cost 取商品右侧的单价（如 ¥18.99 中的 18.99），不要订单实付总价
+- qty 是商品数量（如 ×2 表示 2），识别不出则填 0
+- 如果某个字段识别不出，填空字符串或 0`;
+    fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'qwen-vl-plus',messages:[{role:'user',content:[{type:'image_url',image_url:{url:window._aiImg}},{type:'text',text:prompt}]}]})
+    }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(data){
+      if(data.error)throw new Error(data.error.message||'API 错误');
+      const text=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'';
+      const items=parseAIResponse(text);
+      if(items.length){aiBuildFromAPI(items);res();}
+      else{throw new Error('云端未识别出商品');}
+    }).catch(function(err){
+      if(ld)ld.textContent='云端识别失败：'+(err.message||err)+'，尝试本地识别…';
+      setTimeout(function(){rej(err);},800);
+    });
+  });
+}
+function parseAIResponse(text){
+  try{
+    const m=text.match(/(\[[\s\S]*?\])/);
+    if(m){const arr=JSON.parse(m[1]);if(Array.isArray(arr))return arr.filter(function(x){return x&&typeof x==='object';});}
+    return [];
+  }catch(e){return [];}
+}
+function aiBuildFromAPI(items){
+  const ld=document.getElementById('aiLoading');if(ld)ld.style.display='none';
+  window._aiItems=items.map(function(it){
+    return {name:it.name||'',cost:it.cost!=null?it.cost:'',price:'',stock:it.qty||'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10};
+  });
+  window._aiActiveIdx=0;
+  const priceChips=items.map(function(it){return it.cost;}).filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).map(function(v){return '<span class="chip chip-price" onclick="aiFillPrice('+v+')">¥'+v+'</span>';}).join('');
+  const h=`<div class="ai-grid">
+    <div>
+      <div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)">
+        <img src="${window._aiImg}" id="aiImgTag">
+        <div class="ai-img-note">点击图片可选择/裁剪商品小图</div>
+      </div>
+      <label class="label" style="margin-top:10px">云端识别结果</label>
+      <div class="tip" style="margin-top:6px">已按截图顺序生成商品卡片，检查名字/价格即可点「批量添加」。如需配图，点商品卡片左边的小图或「从图片裁剪小图」选对应位置。</div>
+    </div>
+    <div>
+      ${priceChips?'<label class="label">识别到的价格</label><div class="chip-list">'+priceChips+'</div>':''}
+    </div>
+  </div>
+  <div id="aiItems"></div>
+  <button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button>
+  <button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>`;
+  document.getElementById('aiResult').innerHTML=h;
+  renderAiItems();
+  aiFocusItem(0);
+}
+function extractPriceCandidates(text){
+  const lines=text.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
+  const totalKw=/实付|合计|总价|共|小计|运费|优惠|满减|折扣|到手价|券后|补贴价|原价|定金|尾款/;
+  const cand=[];
+  lines.forEach(function(line){
+    if(totalKw.test(line)) return;
+    const ms=line.match(/¥\s?(\d+(?:\.\d+)?)/g);
+    if(ms){ms.forEach(function(mm){const v=parseFloat(mm.replace(/[¥\s]/g,''));if(v>0&&v<500)cand.push({val:v,line:line});});}
+  });
+  if(!cand.length){
+    lines.forEach(function(line){
+      if(totalKw.test(line)) return;
+      const ms=line.match(/\b(\d{1,3}(?:\.\d{1,2})?)\b/g);
+      if(ms){ms.forEach(function(mm){const v=parseFloat(mm);if(v>0&&v<500)cand.push({val:v,line:line});});}
+    });
+  }
+  return cand;
+}
+function extractNameCandidates(text){
+  const junk=/^(申请|退款|再次|拼单|催发货|实付|合计|总价|共|小计|运费|优惠|满减|折扣|到手价|券后|补贴价|拼团|秒杀|百亿|补贴|特价|团购|立减|7天无理由|退货|预计|小时内|发货|商家|打包|成功|潜力好店|店|官方|旗舰店|自营店|大小)/;
+  return text.split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){
+    return s.length>=5 && s.length<=70 && /[\u4e00-\u9fa5]/.test(s) && !/¥/.test(s) && !/^\d+(\.\d+)?$/.test(s) && !/^[\d\s\¥\.\,\×xX]+$/.test(s) && !junk.test(s);
+  }).slice(0,30);
+}
+function renderAiItems(){
+  const el=document.getElementById('aiItems');if(!el)return;
+  el.innerHTML='';
+  window._aiItems.forEach(function(it,idx){
+    const h=`<div class="ai-item" id="aiItem${idx}" onclick="aiFocusItem(${idx})">
+    <div class="ai-item-h"><span class="n">商品 ${idx+1}</span><span class="sale-del" onclick="event.stopPropagation();aiRemoveItem(${idx})">删除</span></div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+      <div class="thumb" id="aiThumb${idx}" onclick="event.stopPropagation();aiCropStart(${idx})">${it.image?'<img src="'+it.image+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px">':'🖼'}</div>
+      <div style="flex:1">
+        <input class="input" id="aiName${idx}" placeholder="商品名" value="${esc(it.name||'')}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'name',this.value)">
+        <select class="input" id="aiCat${idx}" style="margin-top:6px" data-last="${esc(it.cat||'')}" onfocus="aiFocusItem(${idx})" onchange="onCatChange('aiCat${idx}')">${catOptionsHTML(it.cat||'')}</select>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <input class="input" id="aiCost${idx}" type="number" placeholder="进货价" value="${it.cost||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'cost',this.value)">
+      <input class="input" id="aiPrice${idx}" type="number" placeholder="售价" value="${it.price||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'price',this.value)">
+      <input class="input" id="aiStock${idx}" type="number" placeholder="库存" value="${it.stock||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'stock',this.value)">
+      <input class="input" id="aiSafe${idx}" type="number" placeholder="预警" value="${it.safetyStock||10}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'safetyStock',this.value)">
+    </div>
+    <div style="margin-top:6px"><span class="inline-btn" onclick="event.stopPropagation();aiCropStart(${idx})">从图片裁剪小图</span></div>
+  </div>`;
+    el.insertAdjacentHTML('beforeend',h);
+  });
+}
+function aiBuildMulti(text){
+  const prices=extractPriceCandidates(text);
+  const names=extractNameCandidates(text);
+  const uniqPrices=[];
+  prices.forEach(function(c){if(uniqPrices.indexOf(c.val)===-1)uniqPrices.push(c.val);});
+  const nameChips=names.length?'<div class="chip-list">'+names.map(function(n,i){return '<span class="chip" onclick="aiFillName('+i+',this)" data-name="'+esc(n)+'">'+esc(n)+'</span>';}).join('')+'</div>':'<div class="meta">未识别到合适商品名，请手动输入</div>';
+  const priceChips=uniqPrices.length?'<label class="label">识别到的价格（点选填充进货价）</label><div class="chip-list">'+uniqPrices.map(function(v){return '<span class="chip chip-price" onclick="aiFillPrice('+v+')">¥'+v+'</span>';}).join('')+'</div>':'<div class="meta">未识别到价格，请手动输入</div>';
+  const autoCount=Math.max(1,Math.min(names.length,6));
+  const autoItems=[];
+  for(let i=0;i<autoCount;i++){
+    autoItems.push({name:names[i]||'',cost:uniqPrices[i]||'',price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
+  }
+  window._aiItems=autoItems;
+  window._aiText=text;
+  window._aiNames=names;
+  window._aiPrices=uniqPrices;
+  window._aiActiveIdx=0;
+  const h=`<div class="ai-grid">
+    <div>
+      <div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)">
+        <img src="${window._aiImg}" id="aiImgTag">
+        <div class="ai-img-note">点击图片可选择/裁剪商品小图</div>
+      </div>
+      <label class="label" style="margin-top:10px">识别到的商品名（点选）</label>
+      ${nameChips}
+      ${names.length?'<div class="tip" style="margin-top:6px">已按顺序自动填入左侧，若不对，点名字即可替换当前商品</div>':''}
+    </div>
+    <div>
+      ${priceChips}
+      ${uniqPrices.length?'<div class="tip" style="margin-top:6px">价格已自动填入「进货价」，点价格可替换当前编辑商品</div>':''}
+    </div>
+  </div>
+  <div id="aiItems"></div>
+  <button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button>
+  <button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>
+  <div class="tip" style="margin-top:8px">已按截图顺序自动生成商品卡片，检查名字/价格即可点「批量添加」。如需配图，点商品卡片左边的小图或「从图片裁剪小图」选对应位置。</div>`;
+  document.getElementById('aiResult').innerHTML=h;
+  renderAiItems();
+  aiFocusItem(0);
+}
+function aiAddItem(){
+  const idx=window._aiItems.length;
+  window._aiItems.push({name:'',cost:'',price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
+  renderAiItems();aiFocusItem(idx);
+}
+function aiFocusItem(idx){
+  window._aiActiveIdx=idx;
+  document.querySelectorAll('.ai-item').forEach(function(el,i){el.style.borderColor=(i===idx)?'var(--primary)':'';el.style.background=(i===idx)?'var(--primary-soft)':'#fff';});
+}
+function aiSync(idx,field,v){if(window._aiItems[idx])window._aiItems[idx][field]=v;}
+function aiFillName(i,el){
+  const idx=window._aiActiveIdx;if(idx==null||!window._aiItems[idx])return;
+  const name=el?el.dataset.name:(window._aiNames[i]||'');window._aiItems[idx].name=name;
+  const inp=document.getElementById('aiName'+idx);if(inp)inp.value=name;aiFocusItem(idx);
+}
+function aiFillPrice(v){
+  const idx=window._aiActiveIdx;if(idx==null||!window._aiItems[idx])return;
+  window._aiItems[idx].cost=v;const inp=document.getElementById('aiCost'+idx);if(inp)inp.value=v;aiFocusItem(idx);
+}
+function aiRemoveItem(idx){
+  if(!window._aiItems[idx])return;
+  window._aiItems.splice(idx,1);
+  renderAiItems();
+  if(!window._aiItems.length){aiAddItem();}
+  else{aiFocusItem(Math.min(window._aiActiveIdx||0,window._aiItems.length-1));}
+}
+function aiCropStart(idx){
+  const targetIdx=idx>=0?idx:(window._aiActiveIdx!=null?window._aiActiveIdx:0);
+  window._aiCropIdx=targetIdx;
+  if(document.getElementById('aiCropStage'))return;
+  const h=`<div class="crop-stage" id="aiCropStage" onclick="if(event.target.id==='aiCropStage')aiCropCancel()">
+    <div class="crop-hint">点击图片上该商品的位置，会自动裁剪出小图（点空白处取消）</div>
+    <img src="${window._aiImg}" id="aiCropImg" onclick="aiCropClick(event)">
+    <button class="crop-done" onclick="aiCropCancel()">取消裁剪</button>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+function aiCropClick(e){
+  const img=document.getElementById('aiCropImg');if(!img)return;
+  const rect=img.getBoundingClientRect();
+  const x=e.clientX-rect.left,y=e.clientY-rect.top;
+  const naturalW=img.naturalWidth,naturalH=img.naturalHeight;
+  const scaleX=naturalW/rect.width,scaleY=naturalH/rect.height;
+  const nx=x*scaleX,ny=y*scaleY;
+  const size=Math.min(naturalW,naturalH,260);
+  let cx=Math.max(size/2,Math.min(naturalW-size/2,nx));let cy=Math.max(size/2,Math.min(naturalH-size/2,ny));
+  let sx=Math.max(0,cx-size/2),sy=Math.max(0,cy-size/2);
+  const c=document.createElement('canvas');c.width=size;c.height=size;
+  c.getContext('2d').drawImage(img,sx,sy,size,size,0,0,size,size);
+  const data=c.toDataURL('image/jpeg',0.72);
+  const idx=window._aiCropIdx;
+  if(idx>=0&&window._aiItems[idx]){
+    window._aiItems[idx].image=data;
+    const thumb=document.getElementById('aiThumb'+idx);if(thumb)thumb.innerHTML='<img src="'+data+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
+  }
+  const s=document.getElementById('aiCropStage');if(s)s.remove();aiFocusItem(idx);
+}
+function aiCropCancel(){const s=document.getElementById('aiCropStage');if(s)s.remove();}
+function aiConfirmMulti(){
+  const items=(window._aiItems||[]).map(function(it,i){return it?{it:it,i:i}:null;}).filter(Boolean);
+  if(!items.length){toast('请至少添加一个商品');return;}
+  let added=0,skip=0;
+  items.forEach(function(pair){
+    const idx=pair.i;const it=pair.it;
+    const name=(document.getElementById('aiName'+idx).value||'').trim();
+    if(!name){skip++;return;}
+    if(DB.products.some(function(p){return p.name===name;})){skip++;return;}
+    const catVal=(document.getElementById('aiCat'+idx).value||'').trim();
+    const safe=Number(document.getElementById('aiSafe'+idx).value)||(DB.settings.defaultSafety||10);
+    DB.products.push({id:uid(),createdAt:Date.now(),name:name,cat:catVal==='__new__'?'':catVal,cost:Number(document.getElementById('aiCost'+idx).value)||0,price:Number(document.getElementById('aiPrice'+idx).value)||0,stock:Number(document.getElementById('aiStock'+idx).value)||0,safetyStock:safe,unit:'个',image:it.image||''});added++;
+  });
+  save();aiClose();toast('已添加 '+added+' 个'+(skip?'，跳过 '+skip+' 个':''));render();
+}
+
+/* ===== 本地 OCR 增强：图像预处理 + 单品框选识别 ===== */
+function preprocessForOCR(src,cb){
+  try{
+    const img=new Image();img.onload=function(){
+      try{
+        let w=img.width,h=img.height;
+        const scale=w<1400?2:1;
+        w=Math.round(w*scale);h=Math.round(h*scale);
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const ctx=c.getContext('2d');if(!ctx){cb(src);return;}
+        ctx.drawImage(img,0,0,w,h);
+        let data;try{data=ctx.getImageData(0,0,w,h);}catch(e){cb(c.toDataURL('image/png'));return;}
+        const d=data.data;const k=1.7;
+        for(let i=0;i<d.length;i+=4){
+          let gray=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
+          gray=(gray-128)*k+128;
+          if(gray<0)gray=0;else if(gray>255)gray=255;
+          d[i]=d[i+1]=d[i+2]=gray;
+        }
+        ctx.putImageData(data,0,0);
+        cb(c.toDataURL('image/png'));
+      }catch(e){cb(src);}
+    };img.onerror=function(){cb(src);};img.src=src;
+  }catch(e){cb(src);}
+}
+function aiRegionStart(){
+  const prev=document.getElementById('aiPrev');
+  if(!prev||!prev.querySelector('img')){toast('请先上传图片');return;}
+  const stage=document.createElement('div');stage.id='aiRegionStage';
+  stage.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;flex-direction:column';
+  const box=document.createElement('div');box.style.cssText='position:relative;max-width:94vw;max-height:72vh;touch-action:none;user-select:none';
+  const im=document.createElement('img');im.src=window._aiImg;im.style.cssText='max-width:94vw;max-height:72vh;display:block;border-radius:12px;pointer-events:none;-webkit-user-drag:none';
+  const sel=document.createElement('div');sel.style.cssText='position:absolute;border:2px dashed #ffd54a;background:rgba(255,213,74,.18);display:none;box-sizing:border-box';
+  const hint=document.createElement('div');hint.style.cssText='color:#fff;font-size:14px;margin-bottom:10px;padding:0 16px;text-align:center';hint.textContent='拖动框选一个商品（名称+价格区域），松手即识别；点空白处取消';
+  box.appendChild(im);box.appendChild(sel);stage.appendChild(hint);stage.appendChild(box);document.body.appendChild(stage);
+  let sx=0,sy=0,moving=false;
+  function rect(){return im.getBoundingClientRect();}
+  function pos(e){const r=rect();return {x:e.clientX-r.left,y:e.clientY-r.top,w:r.width,h:r.height};}
+  function down(e){e.preventDefault();const p=pos(e);moving=true;sx=p.x;sy=p.y;sel.style.display='block';sel.style.left=p.x+'px';sel.style.top=p.y+'px';sel.style.width='0px';sel.style.height='0px';}
+  function move(e){if(!moving)return;const p=pos(e);const x=Math.min(sx,p.x),y=Math.min(sy,p.y),w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);sel.style.left=x+'px';sel.style.top=y+'px';sel.style.width=w+'px';sel.style.height=h+'px';}
+  function up(e){if(!moving)return;moving=false;const p=pos(e);const w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);
+    if(w<20||h<20){sel.style.display='none';return;}
+    const r=rect();const scaleX=im.naturalWidth/r.width,scaleY=im.naturalHeight/r.height;
+    const nx=Math.round(Math.min(sx,p.x)*scaleX),ny=Math.round(Math.min(sy,p.y)*scaleY),nw=Math.round(w*scaleX),nh=Math.round(h*scaleY);
+    stage.remove();aiRegionProcess(nx,ny,nw,nh);
+  }
+  box.addEventListener('pointerdown',down);
+  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
+  stage.addEventListener('click',function(e){if(e.target===stage){stage.remove();window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);}});
+}
+function ensureAiResult(){
+  if(document.getElementById('aiItems'))return;
+  const res=document.getElementById('aiResult');if(!res)return;
+  res.innerHTML='<div class="ai-grid"><div><div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)"><img src="'+window._aiImg+'" id="aiImgTag"><div class="ai-img-note">点击图片可选择/裁剪商品小图</div></div><label class="label" style="margin-top:10px">单品识别结果</label><div class="tip" style="margin-top:6px">已按你框选的区域生成商品卡片，检查名字/价格即可点「批量添加」。继续框选可再加商品。</div></div><div></div></div><div id="aiItems"></div><button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button><button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>';
+}
+function aiRegionProcess(nx,ny,nw,nh){
+  if(!Array.isArray(window._aiItems))window._aiItems=[];
+  const img=new Image();img.onload=function(){
+    const c=document.createElement('canvas');c.width=nw;c.height=nh;
+    c.getContext('2d').drawImage(img,nx,ny,nw,nh,0,0,nw,nh);
+    const region=c.toDataURL('image/png');
+    const ld=document.getElementById('aiLoading');if(ld){ld.style.display='block';ld.textContent='识别单品中…';}
+    preprocessForOCR(region,function(proc){
+      loadTesseract().then(function(T){return T.recognize(proc,'chi_sim+eng');}).then(function(r){
+        if(ld)ld.style.display='none';
+        const text=r.data.text||'';
+        const names=extractNameCandidates(text);
+        const prices=extractPriceCandidates(text);
+        const name=names[0]||'';
+        const cost=prices.length?String(prices[0].val):'';
+        ensureAiResult();
+        window._aiItems.push({name:name,cost:cost,price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
+        renderAiItems();aiFocusItem(window._aiItems.length-1);
+        toast('已识别：'+(name||'未识别到名称')+(cost?(' ¥'+cost):''));
+      }).catch(function(err){if(ld)ld.style.display='none';toast('单品识别失败：'+(err&&err.message||err));});
+    });
+  };img.onerror=function(){toast('图片加载失败');};img.src=window._aiImg;
+}
+
+/* 日历 */
+function prevMonth(){let y=calState.y,m=calState.m-1;if(m<0){m=11;y--;}calState={y,m,selDay:''};renderPerformance();}
+function nextMonth(){let y=calState.y,m=calState.m+1;if(m>11){m=0;y++;}calState={y,m,selDay:''};renderPerformance();}
+function tapDay(iso){if(iso===calState.selDay){calState.selDay='';}else{calState.selDay=iso;}renderPerformance();}
+
+/* 售出记录展开/收起 */
+function toggleSales(){salesExpanded=!salesExpanded;if(cur==='performance')renderPerformance();}
+
+/* 删除一笔售出记录（库存回滚） */
+function delSale(id){
+  const tx=DB.tx.find(x=>x.id===id);if(!tx)return;
+  const p=DB.products.find(y=>y.id===tx.productId);
+  const pname=p?p.name:'该商品';
+  if(!confirm('删除这笔记录？\n将删除「'+pname+' 卖出 '+tx.qty+'」'+(p?('，并把库存补回 '+tx.qty+' 个。'):'。'))) return;
+  if(p)p.stock+=tx.qty;
+  DB.tx=DB.tx.filter(x=>x.id!==id);
+  save();toast('已删除');renderPerformance();
+}
+
+/* 记账弹层 */
+function openSheet(type,pid,label){
+  const db=DB;let pidx=0;if(pid){const i=db.products.findIndex(p=>p.id===pid);if(i>=0)pidx=i;}
+  const opts=db.products.map((p,i)=>`<option value="${i}" ${i===pidx?'selected':''}>${esc(p.name)}（库存${p.stock}）</option>`).join('');
+  let title,btnText;
+  if(label==='补货'){title='🛒 记补货';btnText='确认补货';}
+  else{title=type==='sale'?'⚡ 记卖出':'📥 记进货';btnText=type==='sale'?'确认卖出':'确认进货';}
+  const p0=db.products[pidx]||{price:0};
+  const defPrice=type==='sale'?p0.price:0;
+  const priceBlock=type==='sale'?`
+    <label class="label">成交单价（讲价就改这里，默认标价 ¥${defPrice}）</label>
+    <input class="input" id="sheetPrice" type="number" value="${defPrice}" oninput="updSheetTotal()">
+    <div style="font-size:13px;color:#6b5d4b;margin:6px 0 2px">本笔合计：<b style="color:var(--primary-d);font-size:15px" id="sheetTotal">¥${(defPrice*1).toFixed(2)}</b></div>`:'';
+  const h=`<div class="mask" onclick="closeSheet()"></div>
+  <div class="sheet">
+    <div class="sheet-h">${title}<button class="x" onclick="closeSheet()">×</button></div>
+    <label class="label">商品</label>
+    <select class="input" id="sheetPid" onchange="onSheetPid()">${opts}</select>
+    <label class="label">数量</label>
+    <input class="input" id="sheetQty" type="number" placeholder="输入数量" value="1" oninput="updSheetTotal()">
+    ${priceBlock}
+    <label class="label">备注（可选）</label>
+    <input class="input" id="sheetNote" placeholder="如：客人讲价">
+    <button class="btn btn-primary" style="margin-top:14px" onclick="saveTx('${type}','${label||''}')">${btnText}</button>
+  </div>`;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+}
+function updSheetTotal(){
+  const pidEl=document.getElementById('sheetPid');if(!pidEl)return;
+  const p=DB.products[parseInt(pidEl.value,10)];
+  const pe=document.getElementById('sheetPrice');
+  const price=pe?Number(pe.value)||0:0;
+  const qty=Math.floor(Number(document.getElementById('sheetQty').value)||0);
+  const el=document.getElementById('sheetTotal');if(el)el.textContent='¥'+(price*qty).toFixed(2);
+}
+function onSheetPid(){
+  const pidEl=document.getElementById('sheetPid');if(!pidEl)return;
+  const p=DB.products[parseInt(pidEl.value,10)];
+  const pe=document.getElementById('sheetPrice');if(pe&&p)pe.value=p.price;
+  updSheetTotal();
+}
+function closeSheet(){document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());}
+function saveTx(type,label){
+  const db=DB;const idx=parseInt(document.getElementById('sheetPid').value,10);
+  const pid=db.products[idx]&&db.products[idx].id;
+  const qty=Math.floor(Number(document.getElementById('sheetQty').value)||0);
+  if(!pid){toast('请选择商品');return;}
+  if(qty<=0){toast('数量需大于0');return;}
+  const p=db.products.find(x=>x.id===pid);
+  if(type==='sale'&&qty>p.stock){if(!confirm('库存只有 '+p.stock+'，仍记为卖出 '+qty+' 吗？'))return;}
+  const price=type==='sale'?(Number((document.getElementById('sheetPrice')||{}).value)||0):0;
+  const amount=type==='sale'?price*qty:(type==='purchase'?p.cost*qty:0);
+  if(type==='sale')p.stock-=qty;else p.stock+=qty;
+  db.tx.push({id:uid(),productId:pid,type,qty,amount:amount||undefined,date:todayISO(),note:document.getElementById('sheetNote').value});
+  save();closeSheet();toast(label==='补货'?'已补货':(type==='sale'?'已卖出':'已进货'));render();
+}
+
+/* 商品增改删 */
+function openAdd(){openProductSheet('');}
+function openEdit(pid){
+  const p=DB.products.find(x=>x.id===pid);if(!p)return;
+  openProductSheet(p);
+}
+function openProductSheet(p){
+  const isEdit=!!p;
+  const h=`<div class="mask" onclick="closeSheet()"></div>
+  <div class="sheet">
+    <div class="sheet-h">${isEdit?'编辑商品':'新增商品'}<button class="x" onclick="closeSheet()">×</button></div>
+    <label class="label">名称</label><input class="input" id="pName" value="${isEdit?esc(p.name):''}">
+    <label class="label">分类（选模板，或新建）</label>
+    <select class="input" id="pCat" data-last="${isEdit?esc(p.cat):''}" onchange="onCatChange('pCat')">${catOptionsHTML(isEdit?p.cat:'')}</select>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label class="label">进货价</label><input class="input" id="pCost" type="number" value="${isEdit?p.cost:''}"></div>
+      <div style="flex:1"><label class="label">售价</label><input class="input" id="pPrice" type="number" value="${isEdit?p.price:''}"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label class="label">当前库存</label><input class="input" id="pStock" type="number" value="${isEdit?p.stock:''}"></div>
+      <div style="flex:1"><label class="label">预警线</label><input class="input" id="pSafe" type="number" value="${isEdit?p.safetyStock:(DB.settings.defaultSafety!=null?DB.settings.defaultSafety:'')}"></div>
+    </div>
+    <label class="label">商品图片（可选）</label>
+    <input class="input" id="pImg" type="file" accept="image/*" style="padding:8px">
+    <button class="btn btn-primary" style="margin-top:14px" onclick="saveProduct('${isEdit?p.id:''}')">保存</button>
+    ${isEdit?`<div class="del-zone"><div class="del-divider"></div><button class="btn btn-del" id="delBtn" onclick="armDelete('${p.id}')">🗑 删除此商品</button><div class="del-hint" id="delHint">删除后该商品及全部销售记录将无法恢复</div></div>`:''}
+  </div>`;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+}
+function saveProduct(editId){
+  const name=(document.getElementById('pName').value||'').trim();
+  if(!name){toast('请填写商品名称');return;}
+  const f=document.getElementById('pImg').files[0];
+  const finish=(img)=>{
+    const data={name,cat:(document.getElementById('pCat').value||'').trim(),cost:Number(document.getElementById('pCost').value)||0,price:Number(document.getElementById('pPrice').value)||0,stock:Number(document.getElementById('pStock').value)||0,safetyStock:Number(document.getElementById('pSafe').value)||0,unit:'个',image:img};
+    if(editId){Object.assign(DB.products.find(x=>x.id===editId),data);}else{DB.products.push({id:uid(),createdAt:Date.now(),...data});}
+    save();closeSheet();toast('已保存');render();
+  };
+  if(f){compressImage(f,finish);}else{
+    // 编辑时若未重新选图，保留原图
+    if(editId){const orig=DB.products.find(x=>x.id===editId);finish(orig.image||'');}else finish('');
+  }
+}
+function deleteProduct(pid,pname){
+  if(!confirm('确定删除「'+pname+'」吗？它的销售记录也会一并删除，无法恢复。'))return;
+  DB.products=DB.products.filter(p=>p.id!==pid);
+  DB.tx=DB.tx.filter(t=>t.productId!==pid);
+  save();closeSheet();toast('已删除');render();
+}
+let _delTimer=null;
+function armDelete(pid){
+  const btn=document.getElementById('delBtn');
+  if(!btn)return;
+  if(btn.dataset.armed==='1'){
+    clearTimeout(_delTimer);
+    const p=DB.products.find(x=>x.id===pid);
+    deleteProduct(pid,p?p.name:'');
+  }else{
+    btn.dataset.armed='1';btn.classList.add('armed');btn.textContent='⚠ 再次点击确认删除';
+    const hint=document.getElementById('delHint');if(hint)hint.textContent='5 秒内不再点击，将自动取消';
+    _delTimer=setTimeout(function(){if(btn){btn.dataset.armed='';btn.classList.remove('armed');btn.textContent='🗑 删除此商品';const h2=document.getElementById('delHint');if(h2)h2.textContent='删除后该商品及全部销售记录将无法恢复';}},5000);
+  }
+}
+function batchImport(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.multiple=true;
+  inp.onchange=()=>{const files=Array.from(inp.files).slice(0,9);if(!files.length)return;
+    toast('正在处理图片…');
+    let done=0;const rows=new Array(files.length);
+    files.forEach((f,i)=>{compressImage(f,(img)=>{rows[i]={image:img,name:'',cost:'',price:'',stock:''};done++;if(done===files.length)showImportSheet(rows);});});
+  };
+  inp.click();
+}
+function showImportSheet(rows){
+  const h=`<div class="mask" onclick="closeSheet()"></div>
+  <div class="sheet">
+    <div class="sheet-h">批量导入（${rows.length}张）<button class="x" onclick="closeSheet()">×</button></div>
+    <label class="label">统一分类（可选，下拉选择）</label>
+    <select class="input" id="impCat" data-last="" onchange="onCatChange('impCat')">${catOptionsHTML('')}</select>
+    <div style="max-height:55vh;overflow:auto">
+    ${rows.map((r,i)=>`<div class="card" style="margin-bottom:8px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="thumb" style="width:44px;height:44px;flex:0 0 44px"><img src="${r.image}"></div>
+        <input class="input" placeholder="商品名" value="" onchange="impF(${i},'name',this.value)">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input class="input" placeholder="进" onchange="impF(${i},'cost',this.value)">
+        <input class="input" placeholder="售" onchange="impF(${i},'price',this.value)">
+        <input class="input" placeholder="库存" onchange="impF(${i},'stock',this.value)">
+      </div></div>`).join('')}
+    </div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="confirmImport()">确认导入</button>
+  </div>`;
+  window._imp=rows;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+}
+function impF(i,f,v){if(window._imp[i])window._imp[i][f]=v;}
+function confirmImport(){
+  let added=0,skip=0;
+  const defSafe=DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10;
+  const catEl=document.getElementById('impCat');
+  let catVal=catEl?catEl.value.trim():'';if(catVal==='__new__')catVal='';
+  (window._imp||[]).forEach(it=>{const name=(it.name||'').trim();if(!name){skip++;return;}if(DB.products.some(p=>p.name===name)){skip++;return;}
+    DB.products.push({id:uid(),createdAt:Date.now(),name,cat:catVal,cost:Number(it.cost)||0,price:Number(it.price)||0,stock:Number(it.stock)||0,safetyStock:defSafe,unit:'个',image:it.image||''});added++;});
+  save();closeSheet();toast('导入 '+added+' 个'+(skip?(' 跳过'+skip):''));render();
+}
+function preview(img){if(img)window.open(img,'_blank');}
+
+/* ============ 启动 ============ */
+load();
+document.getElementById('fab').style.display='block';
+renderTabbar();
+try { render(); } catch (err) { showFatal((err && err.stack) || (err && err.message) || err); }
+</script>
+<script>
+  /* 彻底移除 Service Worker：之前正是它在部分手机上把页面缓存成空白。
+     改为普通网页，每次都从服务器拉最新，不再被缓存拦截。 */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { try { r.unregister(); } catch (e) {} });
+    }).catch(function () {});
+  }
+</script>
+</body>
+</html>
