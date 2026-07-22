@@ -6,6 +6,8 @@
   <title>夜市娃娃小岛 · 网页预览</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#12b3a6">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
   <link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root{
@@ -145,6 +147,9 @@
   .ai-item-h .n{font-weight:800;font-size:14px}
   .ai-item .thumb{width:48px;height:48px;border-radius:12px;flex:0 0 48px}
   .inline-btn{display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);color:var(--primary-d);border:1.5px solid #cfeae6;border-radius:50px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer}
+  /* 居中自动消失小弹窗：固定定位、不占布局、1 秒后淡出 */
+  .toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) translateY(-6px);background:rgba(40,32,24,.92);color:#fff;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:22px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .15s ease, transform .15s ease;z-index:200;max-width:82%;text-align:center;letter-spacing:.2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -169,28 +174,142 @@ function showFatal(msg){
 }
 window.addEventListener('error', function(e){ showFatal((e&&e.message)||(e&&e.error)||'未知错误'); });
 
-/* ============ 数据存储（localStorage 模拟小程序 wx.storage） ============ */
+/* ============ 数据存储：localStorage 存元数据 + IndexedDB 存商品图片 ============
+   之前把商品图 base64 直接塞 localStorage，几张图就会触发 QuotaExceededError。
+   现在：localStorage 只存剥离图片后的元数据（小、体积稳），商品图改存 IndexedDB（配额按设备剩余空间，几百 MB 级别）。
+   启动时自动从 IDB 回填图片到内存；并把旧 localStorage 里的 base64 图片迁移到 IDB。 */
 const KEY='ye_shi_wa_wa_web';
+const IDB_NAME='yeshi_wa_wa';
+const IDB_STORE='product_imgs';
+
+/* 通用工具（uid/日期）— seed 与日历、记一笔等地方都用到，必须保留 */
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 function z(n){return ('0'+n).slice(-2);}
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
 function daysAgoISO(n){const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+
+var _idb=null, _idbFailed=false;
+
+function openImgDB(){
+  return new Promise(function(res,rej){
+    if(_idbFailed) return rej(new Error('idb-disabled'));
+    if(_idb) return res(_idb);
+    if(typeof indexedDB==='undefined'){ _idbFailed=true; return rej(new Error('no-idb')); }
+    try{
+      var r=indexedDB.open(IDB_NAME,1);
+      r.onupgradeneeded=function(){
+        if(!r.result.objectStoreNames.contains(IDB_STORE)) r.result.createObjectStore(IDB_STORE);
+      };
+      r.onsuccess=function(){ _idb=r.result; res(_idb); };
+      r.onerror=function(){ _idbFailed=true; rej(r.error||new Error('idb-open-fail')); };
+      r.onblocked=function(){ _idbFailed=true; rej(new Error('idb-blocked')); };
+    }catch(e){ _idbFailed=true; rej(e); }
+  });
+}
+function idbAll(){
+  return openImgDB().then(function(db){
+    return new Promise(function(res,rej){
+      try{
+        var tx=db.transaction(IDB_STORE,'readonly');
+        var s=tx.objectStore(IDB_STORE);
+        var k=s.getAllKeys(), v=s.getAll();
+        k.onsuccess=function(){ v.onsuccess=function(){ res({keys:k.result||[], values:v.result||[]}); }; };
+        k.onerror=function(){ rej(k.error); };
+      }catch(e){ rej(e); }
+    });
+  });
+}
+function idbSet(key,val){
+  return openImgDB().then(function(db){
+    return new Promise(function(res,rej){
+      try{
+        var tx=db.transaction(IDB_STORE,'readwrite');
+        tx.objectStore(IDB_STORE).put(val,key);
+        tx.oncomplete=res; tx.onerror=function(){ rej(tx.error); };
+      }catch(e){ rej(e); }
+    });
+  });
+}
+function idbDel(key){
+  return openImgDB().then(function(db){
+    return new Promise(function(res,rej){
+      try{
+        var tx=db.transaction(IDB_STORE,'readwrite');
+        tx.objectStore(IDB_STORE).delete(key);
+        tx.oncomplete=res; tx.onerror=function(){ rej(tx.error); };
+      }catch(e){ rej(e); }
+    });
+  });
+}
+
+function _persistMeta(){
+  // 把每个商品的 image 字段置空后再写 localStorage（图片在 IDB 里）
+  var slim={products:DB.products.map(function(p){return Object.assign({},p,{image:''});}),tx:DB.tx,settings:DB.settings,seeded:DB.seeded};
+  try{ localStorage.setItem(KEY, JSON.stringify(slim)); }
+  catch(e){
+    if(e && (e.name==='QuotaExceededError' || e.code===22)){
+      try{ toast('本地存储已满，请到「设置」导出备份后清理'); }catch(_){}
+    } else { throw e; }
+  }
+}
+function _loadImagesFromIDB(){
+  openImgDB().then(function(){ return idbAll(); })
+  .then(function(r){
+    var map={};
+    for(var i=0;i<r.keys.length;i++) map[r.keys[i]]=r.values[i];
+    var mig=[];
+    var filled=false;
+    DB.products.forEach(function(p){
+      if(!p.image && map[p.id]){ p.image=map[p.id]; filled=true; }
+      if(p.image && /^data:/.test(p.image)) mig.push(idbSet(p.id, p.image));
+    });
+    if(mig.length){
+      Promise.all(mig).then(function(){ try{_persistMeta();}catch(_){} }, function(){ /* 迁移失败就保持原样，save() 会自动回退 */ });
+    }
+    if(filled){ try{ render(); }catch(_){ } }
+  })
+  .catch(function(){ _idbFailed=true; });
+}
 function load(){
-  const r=JSON.parse(localStorage.getItem(KEY)||'null');
-  if(r&&r.products) DB=r;
-  if(!DB.settings) DB.settings={restockDays:7,periodDays:30,defaultSafety:10,catTemplates:[],slowDays:14,slowThreshold:0.2,aiApiKey:''};
+  var r=JSON.parse(localStorage.getItem(KEY)||'null');
+  if(r && r.products) DB=r;
+  if(!DB.settings) DB.settings={restockDays:7,periodDays:30,defaultSafety:10,catTemplates:[],slowDays:14,slowThreshold:0.2};
   if(DB.settings.defaultSafety==null) DB.settings.defaultSafety=10;
   if(!Array.isArray(DB.settings.catTemplates)) DB.settings.catTemplates=[];
   if(DB.settings.slowDays==null) DB.settings.slowDays=14;
   if(DB.settings.slowThreshold==null) DB.settings.slowThreshold=0.2;
-  if(DB.settings.aiApiKey==null) DB.settings.aiApiKey='';
-  if(!DB.seeded&&(!DB.products||!DB.products.length)){
-    const s=seed();DB.products=s.products;DB.tx=s.tx;DB.seeded=true;save();
+  if(!DB.seeded && (!DB.products||!DB.products.length)){
+    var s=seed(); DB.products=s.products; DB.tx=s.tx; DB.seeded=true;
+    _persistMeta();
   }
+  _loadImagesFromIDB();
   return DB;
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(DB));}
-let DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowThreshold:0.2,aiApiKey:''}};
+function save(){
+  // IDB 不可用时：图片与元数据一起写 localStorage（老行为，保证不丢）
+  if(_idbFailed){
+    try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+    catch(e){
+      if(e && (e.name==='QuotaExceededError' || e.code===22)){ try{toast('存储已满，请到设置页导出备份');}catch(_){} }
+      else throw e;
+    }
+    return;
+  }
+  // 正常路径：图片写 IDB，元数据写 localStorage
+  var tasks=[];
+  DB.products.forEach(function(p){
+    if(p.image && /^data:/.test(p.image)) tasks.push(idbSet(p.id, p.image));
+    else tasks.push(idbDel(p.id));
+  });
+  Promise.all(tasks).then(function(){ _persistMeta(); }, function(){
+    // 任一图片写 IDB 失败 → 回退到把图片也写进 localStorage（不丢图），下次再试 IDB
+    try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+    catch(e){
+      if(e && (e.name==='QuotaExceededError' || e.code===22)){ try{toast('存储已满，请到设置页导出备份');}catch(_){} }
+    }
+  });
+}
+var DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowThreshold:0.2}};
 
 /* 图片压缩：手机拍的照片动辄好几M，直接转 base64 存 localStorage 会卡死甚至超容量。
    这里缩到最长边 800px、JPEG 0.72，单张一般 50~120KB，既不卡也存得下。 */
@@ -272,7 +391,7 @@ function quickOpen(){ if(cur==='restock') openSheet('purchase',undefined,'补货
 
 function toast(msg){
   let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';document.body.appendChild(el);}
-  el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1400);
+  el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1000);
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -482,10 +601,7 @@ function renderSettings(){
   </div>
   <div class="card">
     <div class="card-h">🤖 智能识别</div>
-    <div class="meta" style="margin-bottom:10px">价格识别已内置在「商品」页的「🤖 识别拼多多价格」里。不填 Key 时<b>完全在手机本地运行</b>，免费但准确度有限；填入 Key 后改走云端视觉模型，识别商品名/价格更准。</div>
-    <label class="label">阿里云百炼 API Key（可选）</label>
-    <input class="input" id="aiApiKey" placeholder="sk-xxxxxxxx" value="${esc(db.settings.aiApiKey||'')}" style="font-family:monospace">
-    <div class="tip" style="margin-top:8px">Key 只存在本浏览器，不会上传到我的服务器。没有 Key 仍可继续使用本地识别。获取方式：阿里云百炼 → 密钥管理 → 创建 API Key。</div>
+    <div class="meta" style="margin-bottom:10px">价格识别已内置在「商品」页的「🤖 识别拼多多价格」里，<b>完全在手机本地运行</b>（Tesseract 离线 OCR），免费、不上传图片，但准确度有限，复杂截图建议手动核对。</div>
   </div>
   <div class="card">
     <div class="card-h">💾 数据备份</div>
@@ -506,11 +622,8 @@ function saveSettings(){
   const ds=dsEl?parseInt(dsEl.value,10):10;
   const sd=parseInt(document.getElementById('slowDays').value,10);
   const st=parseFloat(document.getElementById('slowThreshold').value);
-  const akEl=document.getElementById('aiApiKey');
-  const ak=akEl?akEl.value.trim():'';
   DB.settings.restockDays=rd;DB.settings.periodDays=pd;DB.settings.defaultSafety=isNaN(ds)?10:ds;
   DB.settings.slowDays=isNaN(sd)?14:sd;DB.settings.slowThreshold=isNaN(st)?0.2:st;
-  DB.settings.aiApiKey=ak;
   save();toast('已保存');render();
 }
 function catTemplateListHTML(){
@@ -609,14 +722,7 @@ function aiRun(){
   if(!window._aiImg){toast('请先上传图片');return;}
   const btn=document.getElementById('aiRunBtn');btn.disabled=true;
   const ld=document.getElementById('aiLoading');if(ld){ld.style.display='block';ld.textContent='正在识别…';}
-  if(DB.settings.aiApiKey){
-    aiRunAPI().catch(function(err){
-      if(ld)ld.textContent='云端失败，改用本地识别…';
-      aiRunLocal(btn,ld);
-    });
-  } else {
-    aiRunLocal(btn,ld);
-  }
+  aiRunLocal(btn,ld);
 }
 function aiRunLocal(btn,ld){
   if(ld)ld.textContent='图像增强中…';
@@ -632,69 +738,6 @@ function aiRunLocal(btn,ld){
       toast('识别失败：'+(err&&err.message||err)+'（可手动填写）');
     });
   });
-}
-function aiRunAPI(){
-  return new Promise(function(res,rej){
-    const ld=document.getElementById('aiLoading');if(ld)ld.textContent='正在调用云端识别…';
-    const key=DB.settings.aiApiKey;
-    const prompt=`你是电商订单识别助手。请识别这张电商订单截图中的每个商品，按顺序返回 JSON 数组，不要任何解释和 markdown 代码块：
-[
-  {"name":"商品完整名称","cost":商品单价数字,"qty":购买数量}
-]
-要求：
-- 只提取商品本身，不要店铺名、运费、优惠、实付总价、订单总价等
-- cost 取商品右侧的单价（如 ¥18.99 中的 18.99），不要订单实付总价
-- qty 是商品数量（如 ×2 表示 2），识别不出则填 0
-- 如果某个字段识别不出，填空字符串或 0`;
-    fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'qwen-vl-plus',messages:[{role:'user',content:[{type:'image_url',image_url:{url:window._aiImg}},{type:'text',text:prompt}]}]})
-    }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(data){
-      if(data.error)throw new Error(data.error.message||'API 错误');
-      const text=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'';
-      const items=parseAIResponse(text);
-      if(items.length){aiBuildFromAPI(items);res();}
-      else{throw new Error('云端未识别出商品');}
-    }).catch(function(err){
-      if(ld)ld.textContent='云端识别失败：'+(err.message||err)+'，尝试本地识别…';
-      setTimeout(function(){rej(err);},800);
-    });
-  });
-}
-function parseAIResponse(text){
-  try{
-    const m=text.match(/(\[[\s\S]*?\])/);
-    if(m){const arr=JSON.parse(m[1]);if(Array.isArray(arr))return arr.filter(function(x){return x&&typeof x==='object';});}
-    return [];
-  }catch(e){return [];}
-}
-function aiBuildFromAPI(items){
-  const ld=document.getElementById('aiLoading');if(ld)ld.style.display='none';
-  window._aiItems=items.map(function(it){
-    return {name:it.name||'',cost:it.cost!=null?it.cost:'',price:'',stock:it.qty||'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10};
-  });
-  window._aiActiveIdx=0;
-  const priceChips=items.map(function(it){return it.cost;}).filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).map(function(v){return '<span class="chip chip-price" onclick="aiFillPrice('+v+')">¥'+v+'</span>';}).join('');
-  const h=`<div class="ai-grid">
-    <div>
-      <div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)">
-        <img src="${window._aiImg}" id="aiImgTag">
-        <div class="ai-img-note">点击图片可选择/裁剪商品小图</div>
-      </div>
-      <label class="label" style="margin-top:10px">云端识别结果</label>
-      <div class="tip" style="margin-top:6px">已按截图顺序生成商品卡片，检查名字/价格即可点「批量添加」。如需配图，点商品卡片左边的小图或「从图片裁剪小图」选对应位置。</div>
-    </div>
-    <div>
-      ${priceChips?'<label class="label">识别到的价格</label><div class="chip-list">'+priceChips+'</div>':''}
-    </div>
-  </div>
-  <div id="aiItems"></div>
-  <button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button>
-  <button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>`;
-  document.getElementById('aiResult').innerHTML=h;
-  renderAiItems();
-  aiFocusItem(0);
 }
 function extractPriceCandidates(text){
   const lines=text.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
@@ -953,7 +996,7 @@ function delSale(id){
   if(!confirm('删除这笔记录？\n将删除「'+pname+' 卖出 '+tx.qty+'」'+(p?('，并把库存补回 '+tx.qty+' 个。'):'。'))) return;
   if(p)p.stock+=tx.qty;
   DB.tx=DB.tx.filter(x=>x.id!==id);
-  save();toast('已删除');renderPerformance();
+  save();toast('已删除「'+pname+'」');renderPerformance();
 }
 
 /* 记账弹层 */
@@ -1049,7 +1092,7 @@ function saveProduct(editId){
   const finish=(img)=>{
     const data={name,cat:(document.getElementById('pCat').value||'').trim(),cost:Number(document.getElementById('pCost').value)||0,price:Number(document.getElementById('pPrice').value)||0,stock:Number(document.getElementById('pStock').value)||0,safetyStock:Number(document.getElementById('pSafe').value)||0,unit:'个',image:img};
     if(editId){Object.assign(DB.products.find(x=>x.id===editId),data);}else{DB.products.push({id:uid(),createdAt:Date.now(),...data});}
-    save();closeSheet();toast('已保存');render();
+    save();closeSheet();toast((editId?'已保存「':'已添加「')+name+'」');render();
   };
   if(f){compressImage(f,finish);}else{
     // 编辑时若未重新选图，保留原图
@@ -1060,7 +1103,8 @@ function deleteProduct(pid,pname){
   if(!confirm('确定删除「'+pname+'」吗？它的销售记录也会一并删除，无法恢复。'))return;
   DB.products=DB.products.filter(p=>p.id!==pid);
   DB.tx=DB.tx.filter(t=>t.productId!==pid);
-  save();closeSheet();toast('已删除');render();
+  idbDel(pid).catch(function(){});
+  save();closeSheet();toast('已删除「'+(pname||'商品')+'」');render();
 }
 let _delTimer=null;
 function armDelete(pid){
