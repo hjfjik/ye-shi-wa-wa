@@ -603,8 +603,7 @@ function reloadFromStorage(){
   toast('已同步另一个窗口的改动');
   if(reopen){
     var p=DB.products.find(function(x){return x.id===reopen.pid;});
-    /* 等历史真的退回去之后再重开这一层，避免 history.go 和新的 pushState 抢跑 */
-    if(p) setTimeout(function(){ openTxStep(reopen.type,p.id,reopen.label||''); },160);
+    if(p) openTxStep(reopen.type,p.id,reopen.label||'');
   }
   return true;
 }
@@ -666,7 +665,11 @@ function analytics(p,db){
   const totalSold=sales.reduce((s,t)=>s+t.qty,0);
   const avgDaily=totalSold/settings.periodDays;
   const coverDays=avgDaily>0?p.stock/avgDaily:Infinity;
-  const need=Math.max(0,Math.ceil(avgDaily*settings.restockDays)-p.stock);
+  /* 建议进货量 = 日均 × 补货周期 − 现有库存。
+     但日均销量为 0 时这个式子恒为 0，会让「一件没卖却已经卖光」的商品从补货清单里消失
+     （真实数据里漏过 1 个缺货商品）——缺货是硬事实，必须补：至少补回预警线，没设预警线就至少 1 件。 */
+  let need=Math.max(0,Math.ceil(avgDaily*settings.restockDays)-p.stock);
+  if(p.stock<=0) need=Math.max(need,Number(p.safetyStock||0)>0?Number(p.safetyStock):1);
   const status=p.stock<=0?'out':(p.stock<p.safetyStock?'low':'ok');
   const st=slowStat(p,db);
   return {totalSold,avgDaily,coverDays,need,status,slow:st.slow,never:st.never,idleDays:st.idleDays};
@@ -755,9 +758,7 @@ function renderTabbar(){
   document.getElementById('tabbar').innerHTML=TABS.map(t=>
     `<div class="tab ${t.k===cur?'on':''}" onclick="go('${t.k}')"><span class="ic">${t.ic}</span>${t.t}</div>`).join('');
 }
-function go(k){cur=k;
-  if(document.querySelector('.sheet'))closeSheet();   // 切页前先收掉弹层，别让 #page 被 render 清掉后留下幽灵层
-  const fab=document.getElementById('fab');
+function go(k){cur=k;const fab=document.getElementById('fab');
   if(k==='board'||k==='restock'){fab.style.display='block';fab.textContent=k==='board'?'⚡ 记一笔':'🛒 记补货';}
   else fab.style.display='none';
   renderTabbar();render();}
@@ -1068,12 +1069,11 @@ function setRecType(k){recType=k||'sale';renderPerformance();}
       而且校准过程留痕，不会凭空改数字。
    ============================================================ */
 function openStocktake(){
-  openLayer(function(){
-    document.getElementById('page').insertAdjacentHTML('beforeend',
-      `<div class="mask" onclick="closeSheet()"></div>
-       <div class="sheet" id="stkSheet"></div>`);
-    renderStocktake();
-  });
+  closeSheet();
+  document.getElementById('page').insertAdjacentHTML('beforeend',
+    `<div class="mask" onclick="closeSheet()"></div>
+     <div class="sheet" id="stkSheet"></div>`);
+  renderStocktake();
 }
 function renderStocktake(){
   const el=document.getElementById('stkSheet'); if(!el)return;
@@ -1346,7 +1346,20 @@ function importData(){
   inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
     r.onload=()=>{let data;try{data=JSON.parse(r.result);}catch(e){toast('文件无效');return;}
       if(!data.products){toast('缺少商品数据');return;}
-      if(confirm('导入将覆盖当前所有数据，确定继续？')){if(data.settings===undefined)data.settings={restockDays:7,periodDays:30};DB=data;save();toast('导入成功');render();}};
+      if(confirm('导入将覆盖当前所有数据，确定继续？')){
+        if(data.settings===undefined)data.settings={restockDays:7,periodDays:30};
+        DB=data;
+        /* ★ 微信小程序导出的备份里**没有「期初库存 baseStock」**（实测 0/50 个商品有）。
+           不补这一步，库存恒等式当场就破（推算值退化成 0+Σ流水），
+           整个店会被判成「对不上账」——看板挂红卡、商品页整页红框，用户会以为数据被删了。
+           这里必须和 load() 走同一套补齐流程：先补默认设置，再反推期初。 */
+        ensureDefaults();
+        migrateStockBase(DB);
+        save();
+        const badN=badStockList(DB).length;
+        toast(badN?('导入成功，但有 '+badN+' 个商品库存对不上，请到「设置 → 库存盘点」校正'):'导入成功');
+        render();
+      }};
     r.readAsText(f);};
   inp.click();
 }
@@ -1408,15 +1421,21 @@ function delTx(id){
    第 2 步 数量（含快捷数量）+ 成交单价（含标价/折扣）+ 卖出日期 + 备注 → 确认
    ============================================================ */
 let _pickCatNames=['__all__'];
+let _pickMemo=null;    // 上一次的筛选（分类 / 搜索词），由 renderPick 每次同步
+let _pickKeep=false;   // true = 本次是「从第 2 步按 ← 返回」，要还原筛选；false = 全新一次记一笔
 function openPick(type,pid,label){
   if(pid){ openTxStep(type,pid,label||''); return; }
-  openLayer(function(){
-    window._pick={type:type||'sale',cat:'__all__',kw:'',label:label||''};
-    const h=`<div class="mask" onclick="closeSheet()"></div>
-    <div class="sheet" id="pickSheet"></div>`;
-    document.getElementById('page').insertAdjacentHTML('beforeend',h);
-    renderPick();
-  });
+  closeSheet();                                  // 必须先清场：closeSheet 会重置 _pick/_tx
+  /* 从第 2 步按「←」退回来时要还原分类与搜索词，否则刚搜出来的结果一返回就没了、
+     得重新打字（实测搜「kt」→返回后搜索框变空）。全新记一笔则从干净状态开始。 */
+  const keep=_pickKeep; _pickKeep=false;
+  const memo=_pickMemo;                          // 注意：这两个是 let 顶层变量，不挂在 window 上
+  const useMemo=keep&&memo&&memo.type===(type||'sale');
+  window._pick={type:type||'sale',cat:useMemo?memo.cat:'__all__',kw:useMemo?memo.kw:'',label:label||''};
+  const h=`<div class="mask" onclick="closeSheet()"></div>
+  <div class="sheet" id="pickSheet"></div>`;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+  renderPick();
 }
 function pickCats(){
   const map={};
@@ -1454,12 +1473,19 @@ function renderPick(){
   const cats=pickCats();
   _pickCatNames=['__all__'].concat(cats.map(c=>c.c));
   if(st.cat!=='__all__' && !cats.some(c=>c.c===st.cat)) st.cat='__all__';
+  _pickMemo={type:st.type,cat:st.cat,kw:st.kw};   // 记录当前筛选，供第 2 步「← 返回」时还原
   const title=st.type==='sale'?'⚡ 选择要卖出的商品':(st.label==='补货'?'🛒 选择要补货的商品':'📥 选择要进货的商品');
   const el=document.getElementById('pickSheet');if(!el)return;
   el.className='sheet pick-sheet';
   el.innerHTML=`
   <div class="pick-head">
-    <div class="sheet-h">${title}<button class="x" onclick="closeSheet()">×</button></div>
+    <div class="sheet-h">
+      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+        <button class="x" title="返回" onclick="closeSheet()">←</button>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${title}</span>
+      </span>
+      <button class="x" onclick="closeSheet()">×</button>
+    </div>
     <input class="input" id="pickKw" placeholder="🔍 搜索商品名" value="${esc(st.kw)}" oninput="pickSearch(this.value)">
     <div class="chipbar">
       <span class="chip ${st.cat==='__all__'?'on':''}" onclick="pickCat(0)">全部 ${db.products.length}</span>
@@ -1470,12 +1496,13 @@ function renderPick(){
     ${pickGridHTML(pickRows(),st.type)}
   </div>
   <div class="pick-foot">
-    <button class="btn btn-ghost" onclick="openAdd()">＋ 新增商品</button>
+    <button class="btn btn-ghost" onclick="closeSheet();openAdd()">＋ 新增商品</button>
   </div>`;
 }
 function pickSearch(v){
   const st=window._pick;if(!st)return;
   st.kw=v;
+  _pickMemo={type:st.type,cat:st.cat,kw:st.kw};   // 同步筛选，返回时才能还原（这里不重绘整个弹层）
   // 只换掉网格本身：输入框不动，焦点与光标位置得以保留
   const body=document.getElementById('pickBody');if(!body)return;
   const html=pickGridHTML(pickRows(),st.type);
@@ -1491,27 +1518,25 @@ function pickChoose(pid){
   openTxStep(st.type,pid,st.label||'');
 }
 
-/* 第 2 步的「← 返回」/「换一个」：退回选商品列表。
-   上一层就是选商品时直接退回去（历史也会跟着退），否则新开一个选商品列表。 */
-function txBack(type,label){
-  if(_layerStack.length>1){ history.back(); }
-  else { openPick(type,'',label||''); }
-}
+/* 第 2 步的「← 返回」/「换一个」：退回第 1 步选商品列表。
+   刻意不碰浏览历史 —— 历史那套在手机上会让弹层被莫名其妙的返回事件冲掉，已经撤掉了。 */
+function pickBack(type,label){ _pickKeep=true; openPick(type,'',label||''); }
 
 /* 第 2 步：数量 + 单价 + 卖出日期 + 备注 */
 function openTxStep(type,pid,label){
-  const pFind=DB.products.find(x=>x.id===pid);
-  if(!pFind){toast('商品不存在');return;}
-  openLayer(function(){
-    const p=DB.products.find(x=>x.id===pid)||pFind;   // 重建这一层时按 id 重新取，避免用到旧对象
-    window._tx={type:type,pid:pid,label:label||''};
-    const isSale=type==='sale';
-    const defPrice=p.price;
-    const h=`<div class="mask" onclick="closeSheet()"></div>
+  const p=DB.products.find(x=>x.id===pid);
+  if(!p){toast('商品不存在');return;}
+  closeSheet();
+  window._tx={type:type,pid:pid,label:label||''};
+  const isSale=type==='sale';
+  const defPrice=p.price;
+  const h=`<div class="mask" onclick="closeSheet()"></div>
   <div class="sheet" id="txSheet">
-    <div class="sheet-h" style="gap:8px">
-      <button class="x" title="返回选商品" onclick="txBack('${type}','${label||''}')">←</button>
-      <div style="flex:1;min-width:0;text-align:center">${isSale?'⚡ 确认卖出':(label==='补货'?'🛒 确认补货':'📥 确认进货')}</div>
+    <div class="sheet-h">
+      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+        <button class="x" title="返回选商品" onclick="pickBack('${type}','${label||''}')">←</button>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isSale?'⚡ 确认卖出':(label==='补货'?'🛒 确认补货':'📥 确认进货')}</span>
+      </span>
       <button class="x" onclick="closeSheet()">×</button>
     </div>
     <div class="row" style="margin-bottom:12px">
@@ -1520,7 +1545,7 @@ function openTxStep(type,pid,label){
         <div class="name">${esc(p.name)}</div>
         <div class="meta">${esc(p.cat)||'未分类'} · 库存 ${p.stock} · 标价 ¥${p.price}</div>
       </div>
-      <button class="btn btn-ghost btn-xs" onclick="txBack('${type}','${label||''}')">换一个</button>
+      <button class="btn btn-ghost btn-xs" onclick="pickBack('${type}','${label||''}')">换一个</button>
     </div>
     <label class="label">数量</label>
     <div class="qty-row">
@@ -1557,9 +1582,8 @@ function openTxStep(type,pid,label){
     <button class="btn btn-primary" style="margin-top:14px" onclick="confirmTx('${type}','${pid}','${label||''}')">${isSale?'确认卖出':(label==='补货'?'确认补货':'确认进货')}</button>
   </div>`;
   document.getElementById('page').insertAdjacentHTML('beforeend',h);
-    updTxTotal();
-    updTxDateHint();
-  });
+  updTxTotal();
+  updTxDateHint();
 }
 function setQty(n){const el=document.getElementById('txQty');if(el)el.value=Math.max(1,Math.floor(n));updTxTotal();}
 function bumpQty(d){const el=document.getElementById('txQty');if(!el)return;el.value=Math.max(1,(Math.floor(Number(el.value)||0))+d);updTxTotal();}
@@ -1632,54 +1656,7 @@ function confirmTx(type,pid,label){
   toast(drift===0?okMsg:('⚠ 已记账，但库存校验未通过，请到「商品 → 库存盘点」核对'));
   render();
 }
-/* ============================================================
-   弹层层级 + 浏览历史（修复「点了记一笔之后没得返回」）
-   旧写法只是往 #page 里插一段 HTML，浏览历史里什么都没留下：
-   手机上按返回键/侧滑 → 关不掉弹层；加到主屏幕独立运行时更是完全没反应；
-   配合浏览器时按返回还会把整个页面退出去。看起来就是「没得返回」。
-   现在：每开一层弹层就压一条历史，返回键 = 退回上一层，退到底就关掉弹层。
-   ============================================================ */
-let _layerStack=[];  // 每层存一个「重建函数」，返回时用它把上一层重新画出来
-let _histDepth=0;    // 实际压进浏览历史的条目数（pushState 失败时不会虚增）
-let _selfBack=0;     // 自己调 history.go() 时要忽略掉同样次数的 popstate
-
-function _clearSheets(){
-  document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());
-  window._tx=null;window._pick=null;
-}
-/* 打开一层：先清屏（同屏只留最上面那层），再画，再压一条历史 */
-function openLayer(build){
-  _clearSheets();
-  build();
-  _layerStack.push(build);
-  try{history.pushState({wbLayer:_histDepth+1},'',location.href);_histDepth++;}catch(e){}
-}
-/* 把栈顶那一层重新画一遍（返回上一层 / 刷新当前层都走这里） */
-function _renderTop(){
-  _clearSheets();
-  const top=_layerStack[_layerStack.length-1];
-  if(top)top();
-}
-/* × / 点遮罩 / 记完账：一次性收起所有层，并把历史一起退回去 */
-function closeSheet(){
-  const had=!!document.querySelector('.mask,.sheet');
-  _clearSheets();
-  _layerStack.length=0;
-  if(had&&_histDepth>0){
-    const n=_histDepth;_histDepth=0;
-    _selfBack+=n;
-    try{history.go(-n);}catch(e){_selfBack=0;}
-    clearTimeout(closeSheet._t);
-    closeSheet._t=setTimeout(function(){_selfBack=0;},900);  // 兜底：别让下一次真返回被吃掉
-  }
-}
-window.addEventListener('popstate',function(){
-  if(_selfBack>0){_selfBack--;return;}   // 自己触发的，跳过
-  if(_histDepth>0)_histDepth--;
-  if(!_layerStack.length)return;         // 没弹层 = 真正的页面级返回，放行
-  _layerStack.pop();
-  _renderTop();
-});
+function closeSheet(){document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());window._tx=null;window._pick=null;}
 
 /* 商品增改删 */
 function openAdd(){openProductSheet('');}
@@ -1689,7 +1666,6 @@ function openEdit(pid){
 }
 function openProductSheet(p){
   const isEdit=!!p;
-  openLayer(function(){
   const h=`<div class="mask" onclick="closeSheet()"></div>
   <div class="sheet">
     <div class="sheet-h">${isEdit?'编辑商品':'新增商品'}<button class="x" onclick="closeSheet()">×</button></div>
@@ -1710,7 +1686,6 @@ function openProductSheet(p){
     ${isEdit?`<div class="del-zone"><div class="del-divider"></div><button class="btn btn-del" id="delBtn" onclick="armDelete('${p.id}')">🗑 删除此商品</button><div class="del-hint" id="delHint">删除后该商品及全部销售记录将无法恢复</div></div>`:''}
   </div>`;
   document.getElementById('page').insertAdjacentHTML('beforeend',h);
-  });
 }
 function saveProduct(editId){
   const name=(document.getElementById('pName').value||'').trim();
@@ -1776,7 +1751,6 @@ function batchImport(){
   inp.click();
 }
 function showImportSheet(rows){
-  openLayer(function(){
   const h=`<div class="mask" onclick="closeSheet()"></div>
   <div class="sheet">
     <div class="sheet-h">批量导入（${rows.length}张）<button class="x" onclick="closeSheet()">×</button></div>
@@ -1798,7 +1772,6 @@ function showImportSheet(rows){
   </div>`;
   window._imp=rows;
   document.getElementById('page').insertAdjacentHTML('beforeend',h);
-  });
 }
 function impF(i,f,v){if(window._imp[i])window._imp[i][f]=v;}
 function confirmImport(){
@@ -1811,7 +1784,21 @@ function confirmImport(){
     DB.products.push({id:uid(),createdAt:Date.now(),name,cat:catVal,cost:Number(it.cost)||0,price:Number(it.price)||0,stock:impStock,baseStock:impStock,safetyStock:defSafe,unit:'个',image:it.image||''});added++;});
   save();closeSheet();toast('导入 '+added+' 个'+(skip?(' 跳过'+skip):''));render();
 }
-function preview(img){if(img)window.open(img,'_blank');}
+/* 看大图：以前用「新开标签」的方式打开图片，手机浏览器基本会拦掉 data: 图片 → 点了没反应。
+   改成页内全屏看图层：挂在 body 上（不在 #page 里，切页与重绘都不会把它冲掉），点任意处关闭。 */
+function preview(img){
+  if(!img)return;
+  var old=document.getElementById('imgViewer'); if(old)old.remove();
+  var o=document.createElement('div');
+  o.id='imgViewer';
+  o.style.cssText='position:fixed;inset:0;background:rgba(30,24,18,.93);z-index:300;display:flex;align-items:center;justify-content:center;padding:18px';
+  var im=document.createElement('img');
+  im.src=img;
+  im.style.cssText='max-width:100%;max-height:100%;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.5)';
+  o.appendChild(im);
+  o.onclick=function(){ o.remove(); };
+  document.body.appendChild(o);
+}
 
 /* 兼容旧调用名 */
 function openSheet(type,pid,label){openPick(type,pid,label);}
