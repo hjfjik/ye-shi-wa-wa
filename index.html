@@ -452,6 +452,7 @@ function save(){
   Promise.all(tasks).catch(function(){ /* 图片失败无所谓，账已在①保存 */ });
 }
 var DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowMode:'idle',slowIdleDays:21,slowThreshold:0.2}};
+var _sheetDirty=false;        // 弹层期间改了数据：先 renderStocktake，等关弹层时再 render()，免得把弹层冲掉
 
 /* ============================================================
    库存自证体系 —— 库存必须能「算出来、对得上、查得到」
@@ -1082,7 +1083,7 @@ function renderStocktake(){
   const book=db.products.reduce((s,p)=>s+Number(p.stock||0),0);
   const hist=db.products.reduce((s,p)=>s+stockFromHistory(p,db),0);
   el.innerHTML=`
-  <div class="sheet-h">🧮 库存盘点<button class="x" onclick="closeSheet()">×</button></div>
+  <div class="sheet-h"><button class="x" title="返回" onclick="closeSheet()">←</button>🧮 库存盘点<button class="x" onclick="closeSheet()">×</button></div>
   <div class="stat-grid" style="margin-top:10px">
     <div class="stat" style="background:var(--primary)"><div class="n">${book}</div><div class="l">账面库存合计</div></div>
     <div class="stat" style="background:${bad.length?'var(--error)':'var(--success)'}"><div class="n">${hist}</div><div class="l">按流水推算合计</div></div>
@@ -1123,8 +1124,17 @@ function applyStocktake(pid){
   if(wasDrift!==0) parts.push('历史偏差 '+wasDrift+' 已归零');
   toast(drift===0?(parts.length?('已校正「'+p.name+'」：'+parts.join('，')):('「'+p.name+'」与账面一致'))
     :('⚠「'+p.name+'」仍对不上，请导出备份找我看'));
+  /* 盘点通常一排一排填，重绘前先把别的行已填的实物数保住（被校正的那一行本就该清空）。 */
+  const keep={};
+  document.querySelectorAll('#stkSheet input[id^="stk"]').forEach(el=>{ if(el.value!=='') keep[el.id]=el.value; });
   renderStocktake();
-  try{ if(cur==='products') renderProducts(); if(cur==='board') renderBoard(); }catch(_){ }
+  Object.keys(keep).forEach(id=>{
+    if(id==='stk'+pid) return;
+    const el=document.getElementById(id); if(el) el.value=keep[id];
+  });
+  /* 不要在这里直接 renderProducts()/renderBoard()——它们会把 #page.innerHTML 重写，把弹层和遮罩一起冲掉，
+     体感就是「点了校正盘点就被关了」。底层页面的刷新延到弹层关掉之后。 */
+  _sheetDirty=true;
 }
 function fillStk(pid){
   const p=DB.products.find(x=>x.id===pid); if(!p)return;
@@ -1139,8 +1149,12 @@ function acceptAllBaseline(){
   if(!confirm('把当前账面库存当作事实，重设这 '+bad.length+' 个商品的期初？\n不会改动任何库存数字，只是让账目从此对得上。')) return;
   const n=rebaselineAll(DB);
   save(); toast('已处理 '+n+' 个商品，库存与流水恢复一致');
+  /* 同 applyStocktake：保住已填的实物数，底层页面刷新延到弹层关掉之后。 */
+  const keep={};
+  document.querySelectorAll('#stkSheet input[id^="stk"]').forEach(el=>{ if(el.value!=='') keep[el.id]=el.value; });
   renderStocktake();
-  try{ if(cur==='products') renderProducts(); if(cur==='board') renderBoard(); }catch(_){ }
+  Object.keys(keep).forEach(id=>{ const el=document.getElementById(id); if(el) el.value=keep[id]; });
+  _sheetDirty=true;
 }
 
 function renderRestock(){
@@ -1656,7 +1670,13 @@ function confirmTx(type,pid,label){
   toast(drift===0?okMsg:('⚠ 已记账，但库存校验未通过，请到「商品 → 库存盘点」核对'));
   render();
 }
-function closeSheet(){document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());window._tx=null;window._pick=null;}
+function closeSheet(){
+  document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());
+  window._tx=null;window._pick=null;
+  /* 弹层期间的数据变更要等弹层关掉再刷新底层页面，否则会冲掉弹层 DOM，
+     —— 这就是「点完校正却把盘点关掉了」的根因。 */
+  if(_sheetDirty){_sheetDirty=false;try{render();}catch(_){}}
+}
 
 /* 商品增改删 */
 function openAdd(){openProductSheet('');}
