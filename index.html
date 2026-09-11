@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>夜市娃娃小岛 · 网页预览</title>
+  <title>夜市娃娃小岛 · 预览 v2</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#12b3a6">
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
@@ -43,7 +43,7 @@
 
   .card{background:var(--content);border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(74,65,54,.05)}
   .section-title{font-size:15px;font-weight:800;margin:16px 2px 10px}
-  .card-h{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .card-h{font-size:15px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px;justify-content:space-between}
 
   .btn{border:none;border-radius:50px;padding:13px;font-weight:700;font-size:15px;color:var(--ink);background:#fff;box-shadow:0 2px 4px rgba(61,52,40,.08);text-align:center;line-height:1.2;cursor:pointer;width:100%}
   .btn:active{transform:translateY(3px);box-shadow:none}
@@ -54,6 +54,7 @@
   .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--sec);box-shadow:none}
   .btn-sm{padding:8px 14px;font-size:13px;width:auto;display:inline-block}
   .btn-xs{padding:6px 11px;font-size:12px;width:auto;display:inline-block;border-radius:50px}
+  .btn-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .stat{border-radius:18px;padding:13px;color:#fff;box-shadow:0 3px 0 0 rgba(74,65,54,.1)}
@@ -66,10 +67,12 @@
   .tag{border-radius:50px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block}
   .t-out{background:var(--error);color:#fff}.t-low{background:var(--warning);color:#5a4a16}
   .t-ok{background:var(--success);color:#fff}.t-slow{background:#e0d6c2;color:#6b5a2a}
+  .t-cat{background:var(--primary-soft);color:var(--primary-d)}
   .thumb{width:54px;height:54px;border-radius:14px;border:1.5px solid var(--line);background:var(--primary-soft);flex:0 0 54px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px}
   .thumb img{width:100%;height:100%;object-fit:cover}
 
   .input{width:100%;background:#fbf9f4;border:1.5px solid var(--sec);border-radius:50px;padding:11px 16px;font-size:14px;color:var(--ink);font-weight:600;font-family:inherit}
+  select.input{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--sec) 50%),linear-gradient(135deg,var(--sec) 50%,transparent 50%);background-position:calc(100% - 18px) 18px,calc(100% - 13px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
   .label{font-size:12px;font-weight:800;color:var(--ink2);margin:10px 0 4px;display:block}
   .tip{font-size:12px;font-weight:600;color:var(--ink2);background:var(--primary-soft);border:1.5px solid #cfeae6;border-radius:12px;padding:10px;margin-top:8px;line-height:1.6}
   .empty{text-align:center;color:var(--sec);padding:22px 0;font-size:13px;font-weight:600}
@@ -98,6 +101,45 @@
   .sheet-h{font-size:17px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;padding-bottom:8px}
   .x{border:none;background:var(--primary-soft);color:var(--primary-d);width:30px;height:30px;border-radius:50%;font-size:16px;font-weight:800;cursor:pointer}
 
+  /* 分类筛选条 */
+  .chipbar{display:flex;gap:6px;overflow-x:auto;padding:8px 0 8px;scrollbar-width:none;-ms-overflow-style:none}
+  .chipbar::-webkit-scrollbar{display:none}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:50px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap;flex:0 0 auto}
+  .chip:active{background:var(--primary-soft);border-color:var(--primary)}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .chip-price{border-color:var(--teal);color:var(--primary-d)}
+  .filter-card{background:var(--content);border:1.5px solid var(--line);border-radius:16px;padding:10px 12px 4px;margin-bottom:12px;box-shadow:0 2px 6px rgba(74,65,54,.04)}
+
+  /* 选商品弹层：搜索框与分类条固定在顶部，只有商品网格滚动 */
+  .sheet.pick-sheet{padding:0;display:flex;flex-direction:column;overflow:hidden}
+  .pick-head{flex:0 0 auto;padding:18px 18px 10px;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 3px 10px rgba(74,65,54,.07);position:relative;z-index:2}
+  .pick-head .sheet-h{position:static;margin-bottom:4px;padding-bottom:0}
+  .pick-head .chipbar{padding-bottom:2px}
+  .pick-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 18px 14px}
+  .pick-foot{flex:0 0 auto;padding:10px 18px 16px;background:#fff;border-top:1.5px solid var(--line)}
+  .pick-sold{color:var(--primary-d);font-weight:800}
+
+  /* 选商品照片网格 */
+  .pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+  .pick-item{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;cursor:pointer;box-shadow:0 2px 6px rgba(74,65,54,.05)}
+  .pick-item:active{border-color:var(--primary);background:var(--primary-soft)}
+  .pick-item.dis{opacity:.42}
+  .pick-item .ph{width:100%;height:96px;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:34px;overflow:hidden}
+  .pick-item .ph img{width:100%;height:100%;object-fit:cover}
+  .pick-item .bd{padding:7px 9px 9px}
+  .pick-item .nm{font-size:12.5px;font-weight:800;line-height:1.3;height:33px;overflow:hidden}
+  .pick-item .mt{font-size:11px;color:var(--sec);font-weight:700;margin-top:3px;display:flex;justify-content:space-between;gap:4px}
+  .pick-item .mt .r{color:var(--primary-d);white-space:nowrap}
+
+  /* 数量步进 */
+  .qty-row{display:flex;align-items:center;gap:10px}
+  .qty-btn{width:48px;height:46px;flex:0 0 48px;border-radius:16px;border:1.5px solid var(--line);background:#fff;font-size:22px;font-weight:800;color:var(--ink);cursor:pointer;line-height:1}
+  .qty-btn:active{background:var(--primary-soft);border-color:var(--primary)}
+  .qty-input{text-align:center;font-size:18px;font-weight:800;padding:11px 6px}
+  .sum-box{background:var(--primary-soft);border:1.5px solid #cfeae6;border-radius:14px;padding:12px;margin-top:12px}
+  .sum-box .l1{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700}
+  .sum-box .l2{font-size:12px;font-weight:700;color:var(--ink2);margin-top:7px}
+
   /* 业绩日历 */
   .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
   .cal-head .m{font-weight:800;font-size:15px}
@@ -120,36 +162,34 @@
   .rank-row .bar{height:9px;background:var(--primary-soft);border-radius:50px;overflow:hidden;margin-top:4px}
   .rank-row .bar i{display:block;height:100%;background:var(--primary);border-radius:50px}
   .rank-row .v{font-weight:800;font-size:13px;white-space:nowrap;text-align:right}
+  .rank-no{width:20px;flex:0 0 20px;text-align:center;font-weight:900;font-size:13px;color:var(--sec)}
   .tbl{width:100%;border-collapse:collapse;font-size:12px}
   .tbl th,.tbl td{text-align:left;padding:8px 6px;border-bottom:1.5px solid var(--line)}
   .tbl th{font-weight:800;background:var(--primary);color:#fff}
+  .tbl tr.gone td{color:var(--sec)}
   @media(min-width:480px){ .tbl th:first-child,.tbl td:first-child{border-radius:0} }
   .sale-del{display:inline-block;color:#e35d6a;font-weight:800;font-size:12px;padding:3px 8px;border-radius:8px;background:rgba(227,93,106,0.1);cursor:pointer;white-space:nowrap}
   .sale-del:active{opacity:.7}
+  .sum-row td{background:#fbf9f4;font-weight:800}
+  .chk-ok{color:var(--success);font-weight:800}
+  .chk-warn{color:var(--orange);font-weight:800}
 
   .legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sec);font-weight:600;margin-top:8px;flex-wrap:wrap}
   .legend .sw{width:12px;height:12px;border-radius:4px;display:inline-block}
-  .crop-stage{position:fixed;inset:0;background:rgba(61,52,40,.92);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;text-align:center}
-  .crop-stage img{max-width:100%;max-height:70vh;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,.3);cursor:crosshair}
-  .crop-hint{color:#fff;font-weight:700;font-size:14px;margin-bottom:10px}
-  .crop-done{background:#fff;color:var(--primary-d);border:none;border-radius:50px;padding:10px 24px;font-weight:700;margin-top:12px;cursor:pointer}
-  .ai-grid{display:grid;grid-template-columns:1fr;gap:10px}
-  @media(min-width:380px){ .ai-grid{grid-template-columns:1.1fr 0.9fr} }
-  .ai-img-wrap{border:1.5px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;position:relative;min-height:120px;max-height:260px;display:flex;align-items:center;justify-content:center}
-  .ai-img-wrap img{max-width:100%;max-height:260px;object-fit:contain}
-  .ai-img-note{position:absolute;bottom:0;left:0;right:0;background:rgba(74,65,54,.75);color:#fff;font-size:11px;font-weight:700;padding:5px;text-align:center}
   .chip-list{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
-  .chip{border:1.5px solid var(--line);background:#fff;border-radius:50px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .chip:active{background:var(--primary-soft);border-color:var(--primary)}
-  .chip-price{border-color:var(--teal);color:var(--primary-d)}
-  .ai-item{border:1.5px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;background:#fff}
-  .ai-item-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .ai-item-h .n{font-weight:800;font-size:14px}
-  .ai-item .thumb{width:48px;height:48px;border-radius:12px;flex:0 0 48px}
   .inline-btn{display:inline-flex;align-items:center;gap:4px;background:var(--primary-soft);color:var(--primary-d);border:1.5px solid #cfeae6;border-radius:50px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer}
   /* 居中自动消失小弹窗：固定定位、不占布局、1 秒后淡出 */
   .toast{position:fixed;left:50%;top:14%;transform:translateX(-50%) translateY(-6px);background:rgba(40,32,24,.92);color:#fff;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:22px;box-shadow:0 6px 20px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .15s ease, transform .15s ease;z-index:200;max-width:82%;text-align:center;letter-spacing:.2px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* 存储/同步异常警示条：账目没保存成功时必须让人一眼看见，且不可自动消失 */
+  .alertbar{margin:10px 14px 0;background:#fff1f0;border:2px solid var(--error);border-radius:14px;padding:11px 13px;font-size:12.5px;font-weight:700;color:#8f2b26;line-height:1.55;flex:0 0 auto}
+  .alertbar.info{background:#fff8e6;border-color:var(--warning);color:#6b5210}
+  .alertbar b{font-weight:900}
+  .alertbar .dismiss{display:inline-block;margin-top:6px;background:#fff;border:1.5px solid currentColor;border-radius:50px;padding:4px 12px;font-size:12px;font-weight:800;color:inherit;cursor:pointer}
+  .badge-bad{background:var(--error);color:#fff;border-radius:50px;padding:2px 9px;font-size:10px;font-weight:800;display:inline-block}
+  .stk-bad{color:var(--error)}
+  .move-plus{color:var(--success);font-weight:800}
+  .move-minus{color:var(--orange);font-weight:800}
 </style>
 </head>
 <body>
@@ -159,8 +199,9 @@
       <div class="t" id="navTitle">夜市娃娃小岛</div>
       <div class="s" id="navSub">摆摊记账 · 补货提醒</div>
     </div>
-    <div class="badge" id="navBadge">网页预览</div>
+    <div class="badge" id="navBadge">预览 v2</div>
   </div>
+  <div id="alertBar" class="alertbar" style="display:none"></div>
   <div class="scroll" id="page"></div>
   <button class="fab" id="fab" style="display:none" onclick="quickOpen()">⚡ 记一笔</button>
   <div class="tabbar" id="tabbar"></div>
@@ -175,9 +216,11 @@ function showFatal(msg){
 window.addEventListener('error', function(e){ showFatal((e&&e.message)||(e&&e.error)||'未知错误'); });
 
 /* ============ 数据存储：localStorage 存元数据 + IndexedDB 存商品图片 ============
-   之前把商品图 base64 直接塞 localStorage，几张图就会触发 QuotaExceededError。
-   现在：localStorage 只存剥离图片后的元数据（小、体积稳），商品图改存 IndexedDB（配额按设备剩余空间，几百 MB 级别）。
-   启动时自动从 IDB 回填图片到内存；并把旧 localStorage 里的 base64 图片迁移到 IDB。 */
+   v2 修复（重要）：旧版 save() 是「先写图片到 IDB，成功了才写元数据到 localStorage」。
+   一旦图片写 IDB 失败（隐私模式 / IDB 被拦 / 配额满），元数据那一步就永远不会执行；
+   兜底分支又把「含图片的整份数据」塞 localStorage，通常因超配额再次失败并被静默吞掉。
+   结果：卖出后当次页面库存看着减了，一刷新库存又回来了 —— 看起来像「库存没减」。
+   现在改为：①元数据（库存/流水）先无条件独立落盘 ②图片再单独走 IDB，图片失败绝不影响记账。 */
 const KEY='ye_shi_wa_wa_web';
 const IDB_NAME='yeshi_wa_wa';
 const IDB_STORE='product_imgs';
@@ -187,6 +230,19 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function z(n){return ('0'+n).slice(-2);}
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
 function daysAgoISO(n){const d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());}
+/* 与「今天」相差的日历天数（本地时区）：今天 0、昨天 1、前天 2。
+   为什么不直接用 (now - new Date(iso)) 除以一天？因为 'YYYY-MM-DD' 在 JS 里被当成 UTC 零点，
+   东八区算出来会凭空多出 8 小时 —— 下午三点时「前天」会被算成 3 天，滞销提示就会说错。 */
+function dayDiff(iso){
+  const s=String(iso||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;
+  const y=+s.slice(0,4),m=+s.slice(5,7),d=+s.slice(8,10);
+  if(!y||!m||!d)return null;
+  const that=new Date(y,m-1,d);
+  const now=new Date();now.setHours(0,0,0,0);
+  const n=Math.round((now-that)/86400000);
+  return isNaN(n)?null:n;
+}
 
 var _idb=null, _idbFailed=false;
 
@@ -242,15 +298,59 @@ function idbDel(key){
   });
 }
 
+/* ---------- 元数据落盘：唯一写入口，写完立刻回读校验 ---------- */
+function slimOf(db){
+  var o=Object.assign({},db);
+  o.products=(db.products||[]).map(function(p){return Object.assign({},p,{image:''});});
+  return o;
+}
+/* 指纹 = 全部商品的「id:库存」+ 流水条数 + 版本号。写入前后各算一次，必须一模一样 */
+function stockFingerprint(db){
+  if(!db||!Array.isArray(db.products))return 'none';
+  return db.products.map(function(p){return p.id+':'+(p.stock==null?'?':p.stock);}).join('|')
+    +'#'+((db.tx||[]).length)+'@'+(db.rev||0);
+}
 function _persistMeta(){
-  // 把每个商品的 image 字段置空后再写 localStorage（图片在 IDB 里）
-  var slim={products:DB.products.map(function(p){return Object.assign({},p,{image:''});}),tx:DB.tx,settings:DB.settings,seeded:DB.seeded};
-  try{ localStorage.setItem(KEY, JSON.stringify(slim)); }
-  catch(e){
-    if(e && (e.name==='QuotaExceededError' || e.code===22)){
-      try{ toast('本地存储已满，请到「设置」导出备份后清理'); }catch(_){}
-    } else { throw e; }
+  DB.rev=(DB.rev||0)+1;
+  DB.savedAt=Date.now();
+  localStorage.setItem(KEY, JSON.stringify(slimOf(DB)));
+  return true;
+}
+function _quotaToast(){
+  try{ toast('本地存储已满，请到「设置」导出备份后清理'); }catch(_){}
+}
+/* ---------- 存储健康状态：出问题就在顶部挂一条不会消失的红条 ---------- */
+var _store={ok:true,msg:''};
+function setStoreBad(msg){
+  _store.ok=false;
+  if(msg) _store.msg=Array.isArray(msg)?msg.join('；'):String(msg);
+  try{ renderAlertBar(); }catch(_){}
+}
+function renderAlertBar(){
+  var el=document.getElementById('alertBar'); if(!el)return;
+  var items=[];
+  if(!_store.ok){
+    items.push('🚨 <b>账目没有保存成功</b>　'+esc(_store.msg||'本地存储不可用')
+      +'<br>现在记的卖出/进货，刷新页面后会丢失。请先到「设置 → 数据备份」导出一次，再换一个正常浏览器窗口打开。');
   }
+  if(_conflict.pending){
+    items.push('🔄 <b>另一个窗口/标签也改了数据</b>　已自动同步为最新，请确认库存数字后继续。'
+      +'<br><span class="dismiss" onclick="dismissConflict()">知道了</span>');
+  }
+  if(!items.length){ el.style.display='none'; el.innerHTML=''; return; }
+  el.style.display='block';
+  el.className='alertbar'+(items.length===1&&_conflict.pending&&_store.ok?' info':'');
+  el.innerHTML=items.join('<div style="height:7px"></div>');
+}
+function dismissConflict(){ _conflict.pending=false; renderAlertBar(); }
+function storageProbe(){
+  try{
+    var k='__yeshi_probe__';
+    localStorage.setItem(k,'1');
+    var v=localStorage.getItem(k);
+    localStorage.removeItem(k);
+    return v==='1';
+  }catch(e){ return false; }
 }
 function _loadImagesFromIDB(){
   openImgDB().then(function(){ return idbAll(); })
@@ -264,52 +364,258 @@ function _loadImagesFromIDB(){
       if(p.image && /^data:/.test(p.image)) mig.push(idbSet(p.id, p.image));
     });
     if(mig.length){
-      Promise.all(mig).then(function(){ try{_persistMeta();}catch(_){} }, function(){ /* 迁移失败就保持原样，save() 会自动回退 */ });
+      Promise.all(mig).catch(function(){ /* 迁移失败不影响元数据 */ });
     }
     if(filled){ try{ render(); }catch(_){ } }
   })
-  .catch(function(){ _idbFailed=true; });
+  .catch(function(){
+    _idbFailed=true;
+    // 兜底：图片另存一份独立键，绝不与账目混写（账目优先，图片存不下就算了）
+    try{
+      var imgs={};
+      DB.products.forEach(function(p){ if(p.image) imgs[p.id]=p.image; });
+      if(Object.keys(imgs).length) localStorage.setItem(KEY+'_imgs', JSON.stringify(imgs));
+    }catch(e){}
+    try{ loadImagesFromLocal(); }catch(e){}
+  });
 }
-function load(){
-  var r=JSON.parse(localStorage.getItem(KEY)||'null');
-  if(r && r.products) DB=r;
-  if(!DB.settings) DB.settings={restockDays:7,periodDays:30,defaultSafety:10,catTemplates:[],slowDays:14,slowThreshold:0.2};
+function loadImagesFromLocal(){
+  var raw=null;
+  try{ raw=localStorage.getItem(KEY+'_imgs'); }catch(e){}
+  if(!raw)return;
+  var imgs;try{ imgs=JSON.parse(raw); }catch(e){return;}
+  var filled=false;
+  DB.products.forEach(function(p){ if(!p.image&&imgs[p.id]){ p.image=imgs[p.id]; filled=true; } });
+  if(filled){ try{ render(); }catch(_){ } }
+}
+function ensureDefaults(){
+  if(!DB.settings) DB.settings={restockDays:7,periodDays:30,defaultSafety:10,catTemplates:[],slowDays:14,slowMode:'idle',slowIdleDays:21,slowThreshold:0.2};
   if(DB.settings.defaultSafety==null) DB.settings.defaultSafety=10;
   if(!Array.isArray(DB.settings.catTemplates)) DB.settings.catTemplates=[];
   if(DB.settings.slowDays==null) DB.settings.slowDays=14;
+  if(DB.settings.slowMode==null) DB.settings.slowMode='idle';
+  if(DB.settings.slowIdleDays==null) DB.settings.slowIdleDays=21;
   if(DB.settings.slowThreshold==null) DB.settings.slowThreshold=0.2;
-  if(!DB.seeded && (!DB.products||!DB.products.length)){
+  if(!Array.isArray(DB.tx)) DB.tx=[];
+  if(!Array.isArray(DB.products)) DB.products=[];
+}
+function load(){
+  var r=null;
+  try{ r=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+  if(r && r.products) DB=r;
+  ensureDefaults();
+  if(!DB.seeded && !DB.products.length){
     var s=seed(); DB.products=s.products; DB.tx=s.tx; DB.seeded=true;
-    _persistMeta();
+  }
+  migrateStockBase(DB);          // 老数据补齐「期初库存」，让库存恒等式当场成立
+  if(!storageProbe()) setStoreBad('这个浏览器禁用了本地存储（可能是隐私/无痕模式）');
+  else {
+    try{ _persistMeta(); }
+    catch(e){ setStoreBad((e&&e.name==='QuotaExceededError')?'本地存储已满':((e&&e.message)||'写入被拒绝')); }
   }
   _loadImagesFromIDB();
   return DB;
 }
 function save(){
-  // IDB 不可用时：图片与元数据一起写 localStorage（老行为，保证不丢）
-  if(_idbFailed){
-    try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
-    catch(e){
-      if(e && (e.name==='QuotaExceededError' || e.code===22)){ try{toast('存储已满，请到设置页导出备份');}catch(_){} }
-      else throw e;
+  /* ① 元数据先无条件落盘 —— 库存和流水一定保存（这份不含图片，体积很小） */
+  try{
+    _persistMeta();
+  }catch(e){
+    if(e && (e.name==='QuotaExceededError' || e.code===22)){ _quotaToast(); setStoreBad('本地存储已满（QuotaExceeded）'); }
+    else setStoreBad((e&&e.message)||String(e));
+  }
+  /* ② 回读校验：确认真正写进存储的库存，就是我刚算出来的那份；正常了就把红条撤掉 */
+  try{
+    var back=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(stockFingerprint(back)!==stockFingerprint(DB)){
+      setStoreBad('写入后回读校验不一致（可能被其他窗口覆盖或存储异常）');
+    }else if(!_store.ok){
+      _store.ok=true; _store.msg='';
+      try{ renderAlertBar(); }catch(_){}
     }
+  }catch(e){ setStoreBad('写入后无法回读校验：'+((e&&e.message)||e)); }
+  /* ③ 图片另行处理，任何失败都不会影响第①步已保存的账目。
+        注意：这里绝不把图片混进账目那一份存储，避免超配额连累库存。 */
+  if(_idbFailed){
+    try{
+      var imgs={};
+      DB.products.forEach(function(p){ if(p.image) imgs[p.id]=p.image; });
+      if(Object.keys(imgs).length) localStorage.setItem(KEY+'_imgs', JSON.stringify(imgs));
+    }catch(e){}
     return;
   }
-  // 正常路径：图片写 IDB，元数据写 localStorage
   var tasks=[];
   DB.products.forEach(function(p){
     if(p.image && /^data:/.test(p.image)) tasks.push(idbSet(p.id, p.image));
     else tasks.push(idbDel(p.id));
   });
-  Promise.all(tasks).then(function(){ _persistMeta(); }, function(){
-    // 任一图片写 IDB 失败 → 回退到把图片也写进 localStorage（不丢图），下次再试 IDB
-    try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
-    catch(e){
-      if(e && (e.name==='QuotaExceededError' || e.code===22)){ try{toast('存储已满，请到设置页导出备份');}catch(_){} }
+  Promise.all(tasks).catch(function(){ /* 图片失败无所谓，账已在①保存 */ });
+}
+var DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowMode:'idle',slowIdleDays:21,slowThreshold:0.2}};
+
+/* ============================================================
+   库存自证体系 —— 库存必须能「算出来、对得上、查得到」
+   ------------------------------------------------------------
+   恒等式：  当前库存 = 期初库存 + Σ进货 − Σ卖出 + Σ盘点调整
+   规则：
+     ① 任何改动库存的动作，都必须同时写一笔流水（sale/purchase/adjust）；
+     ② 因此上面这个等式在任何时刻都必须成立，stockDrift() 正常恒为 0；
+     ③ 若不为 0，说明数据被外部改过（或存储出过问题），页面会标红并给校正入口；
+     ④ 手工把库存改成某个数时，差额会自动记成一笔 adjust，等式依然成立（有据可查）。
+   ============================================================ */
+function txDelta(t){
+  if(!t) return 0;
+  if(t.type==='sale') return -Number(t.qty||0);   // 卖出：减
+  return Number(t.qty||0);                        // 进货：加；调整：qty 自带正负号
+}
+function stockFromHistory(p,db){
+  var v=Number(p.baseStock||0);
+  (db.tx||[]).forEach(function(t){ if(t.productId===p.id) v+=txDelta(t); });
+  return v;
+}
+function stockDrift(p,db){ return Number(p.stock||0)-stockFromHistory(p,db); }
+function isStockBad(p,db){ return Number(p.stock||0)<0 || stockDrift(p,db)!==0; }
+function badStockList(db){ return (db.products||[]).filter(function(p){return isStockBad(p,db);}); }
+function migrateStockBase(db){
+  var changed=false;
+  (db.products||[]).forEach(function(p){
+    if(p.baseStock!=null) return;
+    var sum=0;
+    (db.tx||[]).forEach(function(t){ if(t.productId===p.id) sum+=txDelta(t); });
+    p.baseStock=Number(p.stock||0)-sum;      // 反推期初库存，让等式当场成立
+    changed=true;
+  });
+  if(!db.stockBaseMigrated){ db.stockBaseMigrated=true; changed=true; }
+  return changed;
+}
+/* 唯一允许改库存的函数：改多少，就自动配一笔流水 */
+function pushMove(p,type,qty,note,extra){
+  var t=Object.assign({id:uid(),productId:p.id,type:type,qty:Number(qty||0),date:todayISO(),note:note||''},extra||{});
+  DB.tx.push(t);
+  p.stock=Number(p.stock||0)+txDelta(t);
+  return t;
+}
+/* 把库存直接设成某个数（手动改库存 / 盘点校正）：差额自动记成 adjust */
+function setStockTo(p,newStock,note){
+  var delta=Number(newStock||0)-Number(p.stock||0);
+  if(delta===0) return null;
+  return pushMove(p,'adjust',delta,note||'库存校正');
+}
+/* 重设期初：把 baseStock 调成「账面 − Σ流水」，让恒等式当场归零。
+   为什么必须这么做？因为「偏差」是这套系统的不变量：
+   账面和推算会随每一笔流水同步移动，所以偏差不可能靠"再记一笔调整"修掉，
+   只能重设期初。盘点时用实物数定音，然后重设期初，是最干净的做法。 */
+function rebaseline(p,db){
+  db=db||DB;
+  var sum=0;
+  (db.tx||[]).forEach(function(t){ if(t.productId===p.id) sum+=txDelta(t); });
+  p.baseStock=Number(p.stock||0)-sum;
+  return p.baseStock;
+}
+function rebaselineAll(db){
+  db=db||DB;
+  var n=0;
+  (db.products||[]).forEach(function(p){ if(stockDrift(p,db)!==0){ rebaseline(p,db); n++; } });
+  return n;
+}
+
+/* ---------- 每日自动备份（只备份账目，不含图片，几十 KB） ---------- */
+var SNAP_PREFIX='ye_shi_wa_wa_snap_';
+function snapKey(d){ return SNAP_PREFIX+d; }
+function snapList(){
+  var arr=[];
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k&&k.indexOf(SNAP_PREFIX)===0) arr.push(k.slice(SNAP_PREFIX.length));
     }
+  }catch(e){}
+  return arr.sort().reverse();
+}
+function snapshotDaily(){
+  try{
+    var today=todayISO();
+    if(localStorage.getItem(snapKey(today))) return;
+    if(!DB.products||!DB.products.length) return;
+    localStorage.setItem(snapKey(today), JSON.stringify(slimOf(DB)));
+    snapList().slice(7).forEach(function(d){ try{ localStorage.removeItem(snapKey(d)); }catch(e){} });
+  }catch(e){ /* 备份失败绝不连累记账 */ }
+}
+function restoreSnapshot(d){
+  var raw=null;
+  try{ raw=localStorage.getItem(snapKey(d)); }catch(e){}
+  if(!raw){ toast('找不到该备份'); return; }
+  if(!confirm('用「'+d+'」的备份覆盖当前数据？\n（当前数据会先另存一份「恢复前」，可再退回来）')) return;
+  var data;try{ data=JSON.parse(raw); }catch(e){ toast('备份内容损坏'); return; }
+  try{ localStorage.setItem(snapKey('restore-before-'+Date.now()), JSON.stringify(slimOf(DB))); }catch(e){}
+  var imgMap={};DB.products.forEach(function(p){ imgMap[p.id]=p.image; });
+  DB=data;ensureDefaults();
+  DB.products.forEach(function(p){ if(!p.image&&imgMap[p.id]) p.image=imgMap[p.id]; });
+  migrateStockBase(DB);
+  save(); toast('已恢复到 '+d); render();
+}
+
+function snapInfo(d){
+  try{
+    var raw=localStorage.getItem(snapKey(d));
+    if(!raw) return '（读不到）';
+    var o=JSON.parse(raw);
+    var n=(o.products||[]).length,m=(o.tx||[]).length;
+    var book=(o.products||[]).reduce(function(s,p){return s+Number(p.stock||0);},0);
+    return n+' 个商品 · '+m+' 笔流水 · 库存合计 '+book;
+  }catch(e){ return '（读取失败）'; }
+}
+function toggleBackups(){ showBackups=!showBackups; renderSettings(); }
+/* 一键自检：存储能不能写 + 存储里那份和页面算的是不是同一份 + 库存恒等式是否成立 */
+function selfCheck(){
+  var msgs=[];
+  if(!storageProbe()) msgs.push('本地存储不可写');
+  try{
+    var back=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(stockFingerprint(back)!==stockFingerprint(DB)) msgs.push('存储里的库存与页面不一致');
+  }catch(e){ msgs.push('存储内容读不出来'); }
+  var bad=badStockList(DB);
+  if(bad.length) msgs.push(bad.length+' 个商品库存与流水对不上：'+bad.slice(0,3).map(function(p){return p.name;}).join('、'));
+  if(!msgs.length){
+    if(!_store.ok){ _store.ok=true; _store.msg=''; renderAlertBar(); }
+    toast('自检通过 ✅ '+DB.products.length+' 个商品的库存与流水完全一致');
+  }else{
+    setStoreBad(msgs);
+    toast('自检发现问题：'+msgs[0]);
+  }
+  renderSettings();
+}
+
+/* ---------- 多窗口/多标签冲突：不加这道防线，两边会互相覆盖，库存必错 ---------- */
+var _conflict={pending:false,at:0};
+function reloadFromStorage(){
+  var r=null;
+  try{ r=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+  if(!r||!Array.isArray(r.products)) return false;
+  var imgMap={};DB.products.forEach(function(p){ imgMap[p.id]=p.image; });
+  r.products.forEach(function(p){ if(!p.image&&imgMap[p.id]) p.image=imgMap[p.id]; });
+  var reopen=window._tx?{pid:window._tx.pid,type:window._tx.type,label:window._tx.label}:null;
+  DB=r;ensureDefaults();migrateStockBase(DB);
+  _conflict.pending=true; _conflict.at=Date.now();
+  closeSheet();
+  try{ render(); }catch(_){ }
+  renderAlertBar();
+  toast('已同步另一个窗口的改动');
+  if(reopen){
+    var p=DB.products.find(function(x){return x.id===reopen.pid;});
+    if(p) openTxStep(reopen.type,p.id,reopen.label||'');
+  }
+  return true;
+}
+function bindStorageSync(){
+  window.addEventListener('storage',function(e){
+    if(!e||e.key!==KEY) return;
+    var incoming=null;
+    try{ incoming=JSON.parse(e.newValue||'null'); }catch(_){}
+    if(!incoming){ _conflict.pending=true; renderAlertBar(); return; }
+    if((incoming.savedAt||0)!==(DB.savedAt||0)) reloadFromStorage();
   });
 }
-var DB={products:[],tx:[],settings:{restockDays:7,periodDays:30,defaultSafety:10,catTemplates:['三丽鸥','自嘲熊','线条小狗','玉桂狗','星之卡比','盲盒','卡通','钥匙扣','其他'],slowDays:14,slowThreshold:0.2}};
 
 /* 图片压缩：手机拍的照片动辄好几M，直接转 base64 存 localStorage 会卡死甚至超容量。
    这里缩到最长边 800px、JPEG 0.72，单张一般 50~120KB，既不卡也存得下。 */
@@ -351,7 +657,8 @@ function seed(){
   return {products,tx};
 }
 
-/* ============ 统计算法（与小程序一致） ============ */
+/* ============ 统计算法 ============ */
+/* analytics：近 periodDays 天的口径 —— 只用于「补货建议 / 日均」，不要用于排行榜 */
 function analytics(p,db){
   const settings=db.settings,now=Date.now(),pm=settings.periodDays*86400000;
   const sales=db.tx.filter(t=>t.productId===p.id&&t.type==='sale'&&(now-new Date(t.date).getTime())<=pm);
@@ -360,11 +667,69 @@ function analytics(p,db){
   const coverDays=avgDaily>0?p.stock/avgDaily:Infinity;
   const need=Math.max(0,Math.ceil(avgDaily*settings.restockDays)-p.stock);
   const status=p.stock<=0?'out':(p.stock<p.safetyStock?'low':'ok');
-  // 滞销判断：仅当①还有库存 ②上架满 slowDays 天（新品不算） ③日均<slowThreshold 才算滞销
+  const st=slowStat(p,db);
+  return {totalSold,avgDaily,coverDays,need,status,slow:st.slow,never:st.never,idleDays:st.idleDays};
+}
+/* 「还能卖几天」怎么显示：缺货就是 0 天 —— 没货了却写「还能卖 ∞ 天」是自相矛盾的；
+   有货但近期一件没卖，才是真的 ∞（照这个速度卖不完）。 */
+function coverText(stock,coverDays){
+  if(Number(stock||0)<=0) return '0';
+  if(coverDays==null||!isFinite(coverDays)) return '∞';
+  return String(Math.round(coverDays));
+}
+/* 滞销判定。两种口径，共同前提是「有库存」且「上架已满 slowDays 天」（刚上的新货不算）：
+     idle（默认）＝ 距上次卖出已超过 slowIdleDays 天；从未卖出过的一律算（这才是最该砍的死货）
+     abs          ＝ 近 periodDays 的日均销量低于 slowThreshold
+   为什么默认用 idle：日均销量受统计窗口影响极大，营业额不大时（比如设了 7 天窗口）
+   几乎所有商品都会被判成滞销，等于这个指标没用；「多久没卖出」与窗口长短无关，
+   而且直接对应你真正要做的决定 —— 这件还要不要再进货。 */
+function slowStat(p,db){
+  const s=db.settings||{}, now=Date.now();
   const ageDays=p.createdAt?(now-p.createdAt)/86400000:999;
-  const slowDays=settings.slowDays||14, slowThreshold=settings.slowThreshold!=null?settings.slowThreshold:0.2;
-  const slow=p.stock>0&&ageDays>=slowDays&&avgDaily<slowThreshold;
-  return {totalSold,avgDaily,coverDays,need,status,slow};
+  const slowDays=s.slowDays!=null?s.slowDays:14;
+  let idleDays=null;                                  /* 距上次卖出天数；null = 从未卖出 */
+  for(let i=0;i<db.tx.length;i++){
+    const t=db.tx[i];
+    if(t.productId!==p.id||t.type!=='sale')continue;
+    const d=dayDiff(t.date);                          /* 按日历天算，避免时区把天数算多一天 */
+    if(d===null)continue;
+    if(d<0)d=0;                                       /* 万一流水日期异常跑到未来，按「今天」处理 */
+    if(idleDays===null||d<idleDays)idleDays=d;
+  }
+  const never=(idleDays===null);
+  const eligible=(Number(p.stock||0)>0)&&ageDays>=slowDays;
+  let slow=false;
+  if(eligible){
+    if((s.slowMode||'idle')==='abs'){
+      const pd=s.periodDays||30, pm=pd*86400000;
+      let sold=0;
+      for(let i=0;i<db.tx.length;i++){
+        const t=db.tx[i];
+        if(t.productId===p.id&&t.type==='sale'&&(now-new Date(t.date).getTime())<=pm)sold+=t.qty;
+      }
+      slow=(sold/pd)<(s.slowThreshold!=null?s.slowThreshold:0.2);
+    }else{
+      const lim=s.slowIdleDays!=null?s.slowIdleDays:21;
+      slow=never||(idleDays>lim);
+    }
+  }
+  return {slow:slow,never:never,idleDays:idleDays,eligible:eligible};
+}
+/* 排序用：从未卖出的排最前（最该处理），其余按「多久没卖出」降序 */
+function idleSortKey(d){ return d==null?1e9:d; }
+function idleText(d){ return d==null?'上架至今一件没卖出':('距上次卖出已 '+d+' 天'); }
+/* allTime：累计（全部时间）口径 —— 排行榜 / 商品页 / 对账 统一用它，保证两个页面数字一致 */
+function allTime(p,db){
+  let qty=0,rev=0,cost=0,last='';
+  for(let i=0;i<db.tx.length;i++){
+    const t=db.tx[i];
+    if(t.productId!==p.id||t.type!=='sale')continue;
+    qty+=t.qty;
+    rev+=(t.amount!=null?t.amount:p.price*t.qty);
+    cost+=p.cost*t.qty;
+    if(t.date>last)last=t.date;
+  }
+  return {qty:qty,rev:Math.round(rev),profit:Math.round(rev-cost),last:last};
 }
 function todaySales(db){const tod=todayISO();let qty=0,rev=0,cost=0;db.tx.forEach(x=>{if(x.type==='sale'&&x.date===tod){qty+=x.qty;const p=db.products.find(y=>y.id===x.productId);const amt=x.amount!=null?x.amount:(p?p.price*x.qty:0);rev+=amt;cost+=(p?p.cost*x.qty:0);}});return{qty,rev,cost,profit:rev-cost};}
 function monthSales(db){const m=todayISO().slice(0,7);let qty=0,rev=0,cost=0;db.tx.forEach(x=>{if(x.type==='sale'&&x.date.slice(0,7)===m){qty+=x.qty;const p=db.products.find(y=>y.id===x.productId);const amt=x.amount!=null?x.amount:(p?p.price*x.qty:0);rev+=amt;cost+=(p?p.cost*x.qty:0);}});return{qty,rev,cost,profit:rev-cost};}
@@ -376,7 +741,13 @@ const TABS=[
   {k:'performance',ic:'🏆',t:'业绩'},{k:'restock',ic:'📦',t:'补货'},{k:'settings',ic:'⚙️',t:'设置'}
 ];
 let calState={y:new Date().getFullYear(),m:new Date().getMonth(),selDay:''};
-let salesExpanded=false;
+let salesExpanded=true;                       // v2：售出记录默认展示全部，与「累计」口径一致
+let recRange='all';                           // v2：售出记录时间段 all|today|7|month
+let recType='sale';                           // v2.1：流水类型 sale|purchase|adjust|all
+let showBackups=false;                        // v2.1：设置页展开备份列表
+let prodFilter={cat:'__all__',sort:'rev'};    // v2：商品页筛选与排序（默认按总销售额）
+let _prodCatNames=['__all__'];
+let salesLimit=40;                            // 记录过长时分批展示
 
 /* ============ 渲染骨架 ============ */
 function renderTabbar(){
@@ -387,20 +758,21 @@ function go(k){cur=k;const fab=document.getElementById('fab');
   if(k==='board'||k==='restock'){fab.style.display='block';fab.textContent=k==='board'?'⚡ 记一笔':'🛒 记补货';}
   else fab.style.display='none';
   renderTabbar();render();}
-function quickOpen(){ if(cur==='restock') openSheet('purchase',undefined,'补货'); else openSheet('sale'); }
+function quickOpen(){ if(cur==='restock') openPick('purchase','','补货'); else openPick('sale'); }
 
 function toast(msg){
   let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';document.body.appendChild(el);}
-  el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1000);
+  el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1200);
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function thumbHTML(p){return p.image?`<img src="${p.image}">`:'🧸';}
+function money(n){return '¥'+(Math.round(n*100)/100).toLocaleString('zh-CN');}
 
 /* ============ 各页面 ============ */
 function render(){
   const T={board:'夜市娃娃小岛',products:'我的商品',performance:'销售业绩',restock:'智能补货',settings:'参数设置'};
-  const S={board:'摆摊记账 · 补货提醒',products:'管理你的娃娃挂件',performance:'看营业额与排行',restock:'该进什么、别进什么',settings:'周期与数据备份'};
+  const S={board:'摆摊记账 · 补货提醒',products:'分类筛选 · 默认按销售额排序',performance:'营业额与累计排行',restock:'该进什么、别进什么',settings:'周期与数据备份'};
   document.getElementById('navTitle').textContent=T[cur];
   document.getElementById('navSub').textContent=S[cur];
   ({board:renderBoard,products:renderProducts,performance:renderPerformance,restock:renderRestock,settings:renderSettings}[cur])();
@@ -410,10 +782,11 @@ function renderBoard(){
   const db=DB;let out=0,low=0,slow=0;
   const items=db.products.map(p=>({p,a:analytics(p,db)}));
   items.forEach(x=>{if(x.a.status==='out')out++;else if(x.a.status==='low')low++;if(x.a.slow)slow++;});
+  const bad=badStockList(db);
   const alerts=items.filter(x=>x.a.status!=='ok').sort((x,y)=>x.a.status==='out'?-1:1)
-    .map(x=>({id:x.p.id,name:x.p.name,status:x.a.status,stock:x.p.stock,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays),avg:x.a.avgDaily.toFixed(1),need:x.a.need,image:x.p.image}));
-  const slows=items.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>x.a.avgDaily-x.a.avgDaily)
-    .map(x=>({id:x.p.id,name:x.p.name,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays),total:x.a.totalSold}));
+    .map(x=>({id:x.p.id,name:x.p.name,status:x.a.status,stock:x.p.stock,cover:coverText(x.p.stock,x.a.coverDays),avg:x.a.avgDaily.toFixed(1),need:x.a.need,image:x.p.image}));
+  const slows=items.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>idleSortKey(y.a.idleDays)-idleSortKey(x.a.idleDays))
+    .map(x=>({id:x.p.id,name:x.p.name,stock:x.p.stock,cover:coverText(x.p.stock,x.a.coverDays),total:x.a.totalSold,idle:x.a.idleDays,never:x.a.never}));
   let h=`
   <div class="stat-grid">
     <div class="stat" style="background:var(--teal)"><div class="n">${db.products.length}</div><div class="l">商品种类</div></div>
@@ -421,6 +794,13 @@ function renderBoard(){
     <div class="stat" style="background:var(--yellow);color:#5a4a16"><div class="n">${low}</div><div class="l">预警</div></div>
     <div class="stat" style="background:var(--blue)"><div class="n">${slow}</div><div class="l">滞销</div></div>
   </div>
+  ${bad.length?`<div class="card" style="border:2px solid var(--error)">
+    <div class="card-h"><span style="color:var(--error)">🚨 库存异常 ${bad.length} 个</span></div>
+    <div class="meta">这些商品的库存和流水对不上、或出现负数。<b>按异常库存去进货会进错量</b>，先校正再补货。</div>
+    ${bad.slice(0,5).map(p=>`<div class="meta" style="margin-top:6px">· ${esc(p.name)}：账面 <b>${Number(p.stock||0)}</b>，按流水应为 <b>${stockFromHistory(p,db)}</b>${Number(p.stock||0)<0?'（负数）':''}</div>`).join('')}
+    ${bad.length>5?`<div class="meta">…还有 ${bad.length-5} 个</div>`:''}
+    <button class="btn btn-danger" style="margin-top:10px" onclick="openStocktake()">🧮 去盘点校正</button>
+  </div>`:''}
   <div class="section-title">⚠ 需要关注</div>`;
   if(alerts.length){
     h+=alerts.map(a=>`
@@ -432,64 +812,169 @@ function renderBoard(){
           <div class="meta">库存 ${a.stock} · 日均 ${a.avg} · 还能卖 ${a.cover} 天</div>
           ${a.need>0?`<div class="meta" style="color:#c92a2a">建议进货：${a.need}</div>`:''}
         </div>
+        <button class="btn btn-green btn-xs" onclick="openPick('sale','${a.id}')">卖出</button>
       </div>
     </div>`).join('');
   }else h+=`<div class="empty">暂时都安全 ✅</div>`;
-  h+=`<div class="section-title">🐌 滞销观察</div>`;
+  h+=`<div class="section-title">🐌 滞销观察（${slows.length} 个${slows.some(s=>s.never)?' · 从未卖出 '+slows.filter(s=>s.never).length+' 个':''}）</div>`;
   if(slows.length){
-    h+=slows.map(s=>`
+    h+=slows.slice(0,12).map(s=>`
     <div class="card">
-      <div class="name">${esc(s.name)} <span class="tag t-slow">滞销</span></div>
-      <div class="meta">近30天仅卖 ${s.total} 件 · 库存可卖 ${s.cover} 天</div>
+      <div class="name">${esc(s.name)} <span class="tag t-slow">${s.never?'从未卖出':'久未卖出'}</span></div>
+      <div class="meta">${idleText(s.idle)} · 现存 ${s.stock} 件 · 近${db.settings.periodDays}天卖 ${s.total} 件</div>
     </div>`).join('');
+    if(slows.length>12) h+=`<div class="meta" style="text-align:center;padding:4px 0">…还有 ${slows.length-12} 个，去「补货」页看完整清单</div>`;
   }else h+=`<div class="empty">没有滞销商品，赞 👍</div>`;
-  h+=`<div class="tip">提示：点右下角「⚡记一笔」可快速记录卖出或进货；想对某商品单独操作，去「商品」页。</div>`;
+  h+=``;
   document.getElementById('page').innerHTML=h;
 }
 
+/* ============ 商品页：分类筛选 + 排序（默认按总销售额） ============ */
+function productCats(db){
+  const map={};
+  db.products.forEach(p=>{const c=(p.cat||'').trim()||'未分类';map[c]=(map[c]||0)+1;});
+  const arr=Object.keys(map).map(c=>({c:c,n:map[c]}));
+  arr.sort((a,b)=>b.n-a.n||a.c.localeCompare(b.c,'zh'));
+  return arr;
+}
 function renderProducts(){
   const db=DB;
-  const list=db.products.map(p=>{const a=analytics(p,db);return{id:p.id,name:p.name,cat:p.cat,cost:p.cost,price:p.price,stock:p.stock,safe:p.safetyStock,image:p.image,status:a.status,cover:a.coverDays===Infinity?'∞':Math.round(a.coverDays)};});
-  let h=`<button class="btn btn-primary" onclick="openAdd()">＋ 新增商品</button>
-  <button class="btn btn-ghost" style="margin-top:8px" onclick="batchImport()">🖼 批量选图导入</button>
-  <button class="btn btn-ghost" style="margin-top:8px" onclick="aiRecognize()">🤖 识别拼多多价格</button>`;
+  const rows=db.products.map(p=>({p:p,at:allTime(p,db),a:analytics(p,db)}));
+  const totalRev=rows.reduce((s,r)=>s+r.at.rev,0);
+  const totalQty=rows.reduce((s,r)=>s+r.at.qty,0);
+  const cats=productCats(db);
+  _prodCatNames=['__all__'].concat(cats.map(c=>c.c));
+  // 若当前选中的分类已被清空/改名，自动回到「全部」，避免出现空列表
+  if(prodFilter.cat!=='__all__' && !cats.some(c=>c.c===prodFilter.cat)) prodFilter.cat='__all__';
+  let list=rows.filter(r=>prodFilter.cat==='__all__'||((r.p.cat||'').trim()||'未分类')===prodFilter.cat);
+  const sorters={
+    rev:(x,y)=>y.at.rev-x.at.rev||y.at.qty-x.at.qty,
+    qty:(x,y)=>y.at.qty-x.at.qty||y.at.rev-x.at.rev,
+    profit:(x,y)=>y.at.profit-x.at.profit||y.at.rev-x.at.rev,
+    stock:(x,y)=>x.p.stock-y.p.stock||y.at.rev-x.at.rev,
+    recent:(x,y)=>String(y.at.last||'').localeCompare(String(x.at.last||''))||y.at.rev-x.at.rev
+  };
+  list=list.slice().sort(sorters[prodFilter.sort]||sorters.rev);
+  const sortOpts=[['rev','总销售额（累计）'],['qty','累计销量'],['profit','累计利润'],['stock','库存少 → 多'],['recent','最近卖出']];
+  let h=`
+  <div class="stat-grid">
+    <div class="stat" style="background:var(--teal)"><div class="n">${db.products.length}</div><div class="l">商品种类</div></div>
+    <div class="stat" style="background:var(--orange)"><div class="n">${money(totalRev)}</div><div class="l">累计销售额</div></div>
+    <div class="stat" style="background:var(--blue)"><div class="n">${totalQty}</div><div class="l">累计卖出(件)</div></div>
+    <div class="stat" style="background:var(--purple)"><div class="n">${cats.length}</div><div class="l">分类数</div></div>
+  </div>
+  <button class="btn btn-primary" style="margin-top:12px" onclick="batchImport()">🖼 选图增加商品</button>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="openStocktake()">🧮 库存盘点（拿实物对一遍）${badStockList(db).length?'　⚠ 有异常':''}</button>`;
+
+  if(db.products.length){
+    h+=`
+    <div class="filter-card">
+      <label class="label" style="margin-top:0">按分类看</label>
+      <div class="chipbar">
+        <span class="chip ${prodFilter.cat==='__all__'?'on':''}" onclick="setProdCat(0)">全部 ${db.products.length}</span>
+        ${cats.map((c,i)=>`<span class="chip ${prodFilter.cat===c.c?'on':''}" onclick="setProdCat(${i+1})">${esc(c.c)} ${c.n}</span>`).join('')}
+      </div>
+      <label class="label">排序方式</label>
+      <select class="input" style="margin-bottom:10px" onchange="setProdSort(this.value)">
+        ${sortOpts.map(o=>`<option value="${o[0]}" ${prodFilter.sort===o[0]?'selected':''}>${o[1]}</option>`).join('')}
+      </select>
+      <div class="meta" style="margin:0 0 10px">当前显示 <b>${list.length}</b> 个${prodFilter.cat==='__all__'?'':' · 分类「'+esc(prodFilter.cat)+'」'} · 这 ${list.length} 个累计卖了 <b>${list.reduce((s,r)=>s+r.at.qty,0)}</b> 件，销售额 <b>${money(list.reduce((s,r)=>s+r.at.rev,0))}</b></div>
+    </div>`;
+  }
+
   if(list.length){
-    h+=list.map(it=>`
-    <div class="card">
+    h+=list.map(r=>{const it={id:r.p.id,name:r.p.name,cat:r.p.cat,cost:r.p.cost,price:r.p.price,stock:r.p.stock,safe:r.p.safetyStock,image:r.p.image,status:r.a.status,cover:coverText(r.p.stock,r.a.coverDays),qty:r.at.qty,rev:r.at.rev,profit:r.at.profit,last:r.at.last,drift:stockDrift(r.p,db),hist:stockFromHistory(r.p,db)};return `
+    <div class="card"${it.drift!==0||it.stock<0?' style="border-color:var(--error)"':''}>
       <div style="display:flex;gap:12px;align-items:flex-start">
         <div class="thumb" onclick="preview('${it.image}')">${thumbHTML(it)}</div>
         <div style="flex:1;min-width:0">
-          <div class="name">${esc(it.name)} <span class="tag ${it.status==='out'?'t-out':(it.status==='low'?'t-low':'t-ok')}">${it.status==='out'?'缺货':(it.status==='low'?'预警':'正常')}</span></div>
-          <div class="meta">${esc(it.cat)||'未分类'} · 进¥${it.cost} / 售¥${it.price}</div>
-          <div class="meta">库存 ${it.stock} / ${it.safe}（预警线）· 还能卖 ${it.cover}天</div>
+          <div class="name">${esc(it.name)} <span class="tag ${it.status==='out'?'t-out':(it.status==='low'?'t-low':'t-ok')}">${it.status==='out'?'缺货':(it.status==='low'?'预警':'正常')}</span>${it.stock<0?' <span class="badge-bad">库存负数</span>':''}${it.drift!==0?' <span class="badge-bad">对不上账</span>':''}</div>
+          <div class="meta"><span class="tag t-cat">${esc(it.cat)||'未分类'}</span> 进¥${it.cost} / 售¥${it.price}</div>
+          <div class="meta">累计卖出 <b>${it.qty}</b> 件 · 销售额 <b style="color:var(--primary-d)">${money(it.rev)}</b> · 利润 ${money(it.profit)}</div>
+          <div class="meta">库存 <b>${it.stock}</b> / ${it.safe}（预警线）· 还能卖 ${it.cover} 天${it.last?' · 最近卖出 '+it.last.slice(5):''}${it.drift!==0?(' · <span class="stk-bad">按流水应为 '+it.hist+'，差 '+it.drift+'</span>'):''}</div>
         </div>
       </div>
       <div class="op-bar">
-        <button class="btn btn-green btn-xs" onclick="openSheet('sale','${it.id}')">卖出</button>
-        <button class="btn btn-primary btn-xs" onclick="openSheet('purchase','${it.id}')">进货</button>
+        <button class="btn btn-green btn-xs" onclick="openPick('sale','${it.id}')">卖出</button>
+        <button class="btn btn-primary btn-xs" onclick="openPick('purchase','${it.id}')">进货</button>
         <button class="btn btn-ghost btn-xs" onclick="openEdit('${it.id}')">编辑</button>
       </div>
-    </div>`).join('');
+    </div>`;}).join('');
+  }else if(db.products.length){
+    h+=`<div class="empty">这个分类下还没有商品</div>`;
   }else h+=`<div class="empty">还没有商品，点上方「新增商品」</div>`;
   document.getElementById('page').innerHTML=h;
 }
+function setProdCat(i){prodFilter.cat=_prodCatNames[i]||'__all__';renderProducts();}
+function setProdSort(v){prodFilter.sort=v||'rev';renderProducts();}
 
+/* ============ 业绩页：全部改「累计」口径 + 对账 ============ */
 function renderPerformance(){
   const db=DB;const t=todaySales(db),m=monthSales(db);
-  const arr=db.products.map(p=>({p,a:analytics(p,db)}));
-  const rank=arr.slice().sort((x,y)=>y.a.totalSold-x.a.totalSold).slice(0,8);
-  const maxS=rank.length&&rank[0].a.totalSold?rank[0].a.totalSold:1;
-  const rankOut=rank.filter(x=>x.a.totalSold>0).map(x=>({id:x.p.id,name:x.p.name,image:x.p.image,total:x.a.totalSold,rev:Math.round(db.tx.filter(tx=>tx.productId===x.p.id&&tx.type==='sale').reduce((s,tx)=>{const pp=db.products.find(y=>y.id===tx.productId);return s+(tx.amount!=null?tx.amount:(pp?pp.price*tx.qty:0));},0)),pct:Math.max(4,Math.round(x.a.totalSold/maxS*100)),slow:x.a.slow}));
   const names={};db.products.forEach(p=>names[p.id]=p.name);
-  const sales=db.tx.filter(x=>x.type==='sale').sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,60)
-    .map(x=>{const p=db.products.find(y=>y.id===x.productId);const money=x.amount!=null?x.amount:(p?p.price*x.qty:0);return{id:x.id,name:names[x.productId]||'已删除',qty:x.qty,date:x.date,note:x.note,money:Math.round(money)};});
-  // 售出记录默认只显示近 3 天，点「展开」看全部
-  const recentDates=[...new Set(sales.map(s=>s.date))].slice(0,3);
-  const salesView=salesExpanded?sales:sales.filter(s=>recentDates.includes(s.date));
-  // 日历
+  /* 唯一数据源：全部销售流水。排行、记录、对账全部由它派生，避免口径打架 */
+  const allSales=db.tx.map((x,i)=>({x:x,i:i})).filter(o=>o.x.type==='sale')
+    .sort((a,b)=>{ if(a.x.date!==b.x.date) return a.x.date<b.x.date?1:-1; return b.i-a.i; })
+    .map(o=>{
+      const x=o.x;const p=db.products.find(y=>y.id===x.productId);
+      const mny=Math.round(x.amount!=null?x.amount:((p?p.price:0)*x.qty));
+      return {id:x.id,pid:x.productId,name:names[x.productId]||'已删除',qty:x.qty,date:x.date,note:x.note,money:mny,gone:!p};
+    });
+  const sumQty=allSales.reduce((s,r)=>s+r.qty,0);
+  const sumMoney=allSales.reduce((s,r)=>s+r.money,0);
+
+  /* 流水记录表用：全部类型（售出/进货/调整）。与上面的「销售」口径分开计算，互不干扰 */
+  const allMoves=db.tx.map((x,i)=>({x:x,i:i}))
+    .sort((a,b)=>{ if(a.x.date!==b.x.date) return a.x.date<b.x.date?1:-1; return b.i-a.i; })
+    .map(o=>{
+      const x=o.x;const p=db.products.find(y=>y.id===x.productId);
+      const mny=x.type==='adjust'?0:Math.round(x.amount!=null?x.amount:((p?p.price:0)*x.qty));
+      return {id:x.id,pid:x.productId,name:names[x.productId]||'已删除',type:x.type,qty:Number(x.qty||0),
+        delta:txDelta(x),date:x.date,note:x.note,money:mny,gone:!p};
+    });
+
+  /* 库存自证：账面库存合计 vs 按流水推算合计，两者必须相等 */
+  const bookTotal=db.products.reduce((s,p)=>s+Number(p.stock||0),0);
+  const histTotal=db.products.reduce((s,p)=>s+stockFromHistory(p,db),0);
+  const stockBadList=db.products.filter(p=>isStockBad(p,db));
+
+  /* 排行：现存商品的全部累计 */
+  const active=db.products.map(p=>({p:p,at:allTime(p,db),a:analytics(p,db)})).filter(r=>r.at.qty>0)
+    .sort((x,y)=>y.at.rev-x.at.rev||y.at.qty-x.at.qty);
+  const maxRev=active.length?active[0].at.rev:1;
+  const rankQty=active.reduce((s,r)=>s+r.at.qty,0);
+  const rankMoney=active.reduce((s,r)=>s+r.at.rev,0);
+  /* 对账：记录里属于「已删除商品」的旧流水 */
+  const goneQty=allSales.filter(r=>r.gone).reduce((s,r)=>s+r.qty,0);
+  const goneMoney=allSales.filter(r=>r.gone).reduce((s,r)=>s+r.money,0);
+  const gapQty=rankQty+goneQty-sumQty;       // 正常应为 0
+  const gapMoney=rankMoney+goneMoney-sumMoney;
+
+  /* 售出记录：时间段筛选 */
+  const tod=todayISO();
+  const weekFrom=daysAgoISO(6);
+  const mon=tod.slice(0,7);
+  const rangeFns={
+    all:()=>true,
+    today:r=>r.date===tod,
+    '7':r=>r.date>=weekFrom,
+    month:r=>r.date.slice(0,7)===mon
+  };
+  const rangeLabel={all:'全部',today:'今天','7':'近7天',month:'本月'};
+  const typeLabel={all:'全部类型',sale:'卖出',purchase:'进货',adjust:'库存调整'};
+  const typeCount={all:0,sale:0,purchase:0,adjust:0};
+  const inRange=allMoves.filter(rangeFns[recRange]||rangeFns.all);
+  inRange.forEach(r=>{typeCount[r.type]=(typeCount[r.type]||0)+1;});
+  const shown=inRange.filter(r=>recType==='all'||r.type===recType);
+  const view=salesExpanded?shown:shown.slice(0,salesLimit);
+  const rangeQty=shown.filter(r=>r.type==='sale').reduce((s,r)=>s+r.qty,0);
+  const rangeMoney=shown.filter(r=>r.type==='sale').reduce((s,r)=>s+r.money,0);
+  const rangeIn=shown.filter(r=>r.type==='purchase').reduce((s,r)=>s+r.qty,0);
+  const rangeAdj=shown.filter(r=>r.type==='adjust').reduce((s,r)=>s+r.delta,0);
+
+  /* 日历（保持不变，按所选月份统计营业额） */
   const y=calState.y,mth=calState.m,prefix=y+'-'+z(mth+1)+'-';
-  const priceOf={};db.products.forEach(p=>priceOf[p.id]=p.price);
-  const revByDay={};db.tx.forEach(x=>{if(x.type==='sale'&&x.date.indexOf(prefix)===0){const d=parseInt(x.date.slice(8,10),10);revByDay[d]=(revByDay[d]||0)+(x.amount!=null?x.amount:(priceOf[x.productId]||0)*x.qty);}});
+  const revByDay={};db.tx.forEach(x=>{if(x.type==='sale'&&x.date.indexOf(prefix)===0){const d=parseInt(x.date.slice(8,10),10);const p=db.products.find(q=>q.id===x.productId);revByDay[d]=(revByDay[d]||0)+(x.amount!=null?x.amount:((p?p.price:0)*x.qty));}});
   const firstWd=new Date(y,mth,1).getDay(),daysInMonth=new Date(y,mth+1,0).getDate(),todayI=todayISO();
   let total=0,activeDays=0,best=0;for(let d=1;d<=daysInMonth;d++){const r=Math.round(revByDay[d]||0);total+=r;if(r>0)activeDays++;if(r>best)best=r;}
   const cells=[];
@@ -503,69 +988,179 @@ function renderPerformance(){
   calHtml+=`</div>
   <div class="legend"><span class="sw" style="background:#f6f2ea"></span>无营业额
   <span class="sw" style="background:#cdeee9"></span><span class="sw" style="background:#9dded6"></span><span class="sw" style="background:#5fc6ba"></span><span class="sw" style="background:var(--primary)"></span>越高越好</div>`;
-  // 选中当天明细
+
   let dayHtml='';
   if(calState.selDay){
-    const dayList=db.tx.filter(x=>x.type==='sale'&&x.date===calState.selDay).map(x=>{const money=Math.round(x.amount!=null?x.amount:(priceOf[x.productId]||0)*x.qty);return{id:x.id,name:names[x.productId]||'已删除',qty:x.qty,note:x.note,money};});
+    const dayList=allSales.filter(x=>x.date===calState.selDay);
     let dq=0,dm=0;dayList.forEach(x=>{dq+=x.qty;dm+=x.money;});
-    dayHtml=`<div class="card"><div class="card-h">📅 ${calState.selDay} 明细</div>
-    <div class="meta" style="margin-bottom:8px">共卖 ${dq} 件 · 营业额 <b>¥${dm}</b></div>
-    ${dayList.length?dayList.map(x=>`<div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name">${esc(x.name)}</div><div class="meta">${x.qty} 件${x.note?' · '+esc(x.note):''}</div></div><div style="font-weight:800">¥${x.money}</div><span class="sale-del" style="margin-left:8px" onclick="delSale('${x.id}')">删除</span></div>`).join(''):'<div class="empty">当天无售出</div>'}</div>`;
+    dayHtml=`<div class="card"><div class="card-h"><span>📅 ${calState.selDay} 明细</span></div>
+    <div class="meta" style="margin-bottom:8px">共卖 ${dq} 件 · 营业额 <b>${money(dm)}</b></div>
+    ${dayList.length?dayList.map(x=>`<div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name">${esc(x.name)}</div><div class="meta">${x.qty} 件${x.note?' · '+esc(x.note):''}</div></div><div style="font-weight:800">${money(x.money)}</div><span class="sale-del" style="margin-left:8px" onclick="delTx('${x.id}')">删除</span></div>`).join(''):'<div class="empty">当天无售出</div>'}</div>`;
   }
+
+  /* 对账卡片 */
+  const ok=gapQty===0&&gapMoney===0;
+  const chk=`
+  <div class="card">
+    <div class="card-h"><span>🧮 对账</span><span class="${ok?'chk-ok':'chk-warn'}">${ok?'✅ 一致':'⚠ 有差异'}</span></div>
+    <div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name" style="font-size:13px">排行榜合计（现存商品）</div><div class="meta">累计口径</div></div><div style="font-weight:800;text-align:right">${rankQty} 件<br>${money(rankMoney)}</div></div>
+    <div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name" style="font-size:13px">售出记录合计（全部流水）</div><div class="meta">含已删除商品</div></div><div style="font-weight:800;text-align:right">${sumQty} 件<br>${money(sumMoney)}</div></div>
+    ${goneQty?`<div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name" style="font-size:13px">其中：已删除商品的旧流水</div><div class="meta">这些商品已不在商品页，所以只出现在记录里</div></div><div style="font-weight:800;text-align:right">${goneQty} 件<br>${money(goneMoney)}</div></div>`:''}
+    <div class="row" style="margin-bottom:6px;${stockBadList.length?'border-color:var(--error)':''}"><div style="flex:1"><div class="name" style="font-size:13px">库存对账（账面 vs 按流水推算）</div><div class="meta">期初 + 进货 − 卖出 + 调整 必须 = 账面库存</div></div><div style="font-weight:800;text-align:right">${stockBadList.length?('<span class="stk-bad">⚠ '+stockBadList.length+' 项异常</span>'):'✅ 全部一致'}<br><span style="font-size:11px;color:var(--sec)">账面 ${bookTotal} / 推算 ${histTotal}</span></div></div>
+    ${stockBadList.length?'<button class="btn btn-danger btn-xs" style="margin-top:8px" onclick="openStocktake()">去盘点校正</button>':''}
+`;
+
   let h=`
   <div class="stat-grid">
     <div class="stat" style="background:var(--primary)"><div class="n">${t.qty}</div><div class="l">今日卖出(件)</div></div>
-    <div class="stat" style="background:var(--orange)"><div class="n">¥${Math.round(t.rev)}</div><div class="l">今日营业额</div></div>
+    <div class="stat" style="background:var(--orange)"><div class="n">${money(t.rev)}</div><div class="l">今日营业额</div></div>
     <div class="stat" style="background:var(--purple)"><div class="n">${m.qty}</div><div class="l">本月卖出(件)</div></div>
-    <div class="stat" style="background:var(--pink)"><div class="n">¥${Math.round(m.rev)}</div><div class="l">本月营业额</div></div>
-    <div class="stat" style="background:var(--green)"><div class="n">¥${Math.round(t.profit)}</div><div class="l">今日利润</div></div>
-    <div class="stat" style="background:var(--teal)"><div class="n">¥${Math.round(m.profit)}</div><div class="l">本月利润</div></div>
+    <div class="stat" style="background:var(--pink)"><div class="n">${money(m.rev)}</div><div class="l">本月营业额</div></div>
+    <div class="stat" style="background:var(--green)"><div class="n">${money(t.profit)}</div><div class="l">今日利润</div></div>
+    <div class="stat" style="background:var(--teal)"><div class="n">${money(m.profit)}</div><div class="l">本月利润</div></div>
   </div>
   <div class="section-title">📅 营业额日历</div>
   <div class="card">
     ${calHtml}
-    <div class="meta" style="margin-top:8px">本月营业额 <b>¥${total}</b> · 营业 ${activeDays} 天 · 最高单日 ¥${best}（点格子看当天明细）</div>
+    <div class="meta" style="margin-top:8px">本月营业额 <b>${money(total)}</b> · 营业 ${activeDays} 天 · 最高单日 ${money(best)}（点格子看当天明细）</div>
   </div>
   ${dayHtml}
-  <div class="section-title">🏆 销售排行（近${db.settings.periodDays}天）</div>
-  <div class="card">${rankOut.length?rankOut.map(r=>`
+  <div class="section-title">🏆 销售排行（累计 · 全部时间）</div>
+  <div class="card">${active.length?active.map((r,i)=>`
     <div class="rank-row">
-      <div class="thumb" style="width:40px;height:40px;flex:0 0 40px" onclick="preview('${r.image}')">${r.image?`<img src="${r.image}">`:'🧸'}</div>
-      <div class="nm"><div class="name" style="font-size:13px">${esc(r.name)} ${r.slow?'<span class="tag t-slow">滞销</span>':''}</div><div class="bar"><i style="width:${r.pct}%"></i></div></div>
-      <div class="v">${r.total}件<br>¥${r.rev}</div>
-    </div>`).join(''):'<div class="empty">暂无销售数据</div>'}</div>
-  <div class="section-title">🧾 售出记录 ${salesExpanded?'':'（近3天）'}</div>
-  <div class="card" style="padding:0;overflow:hidden">
-    <table class="tbl"><thead><tr><th>商品</th><th>数量</th><th>金额</th><th>日期</th><th>操作</th></tr></thead><tbody>
-    ${salesView.length?salesView.map(s=>`<tr><td>${esc(s.name)}</td><td>${s.qty}</td><td>¥${s.money}</td><td>${s.date.slice(5)}</td><td><span class="sale-del" onclick="delSale('${s.id}')">删除</span></td></tr>`).join(''):'<tr><td colspan="5" class="empty">暂无记录</td></tr>'}</tbody></table>
+      <div class="rank-no">${i+1}</div>
+      <div class="thumb" style="width:40px;height:40px;flex:0 0 40px" onclick="preview('${r.p.image}')">${r.p.image?`<img src="${r.p.image}">`:'🧸'}</div>
+      <div class="nm"><div class="name" style="font-size:13px">${esc(r.p.name)} ${r.a.slow?'<span class="tag t-slow">滞销</span>':''}</div><div class="bar"><i style="width:${Math.max(4,Math.round(r.at.rev/maxRev*100))}%"></i></div></div>
+      <div class="v">${r.at.qty}件<br>${money(r.at.rev)}</div>
+    </div>`).join(''):'<div class="empty">暂无销售数据</div>'}
   </div>
-  ${sales.length>salesView.length?`<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">展开全部（${sales.length} 条）</button>`:(salesExpanded?'<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">收起</button>':'')}`;
+  ${chk}
+  <div class="section-title">🧾 流水记录（卖出 / 进货 / 库存调整）</div>
+  <div class="filter-card">
+    <div class="chipbar" style="padding-top:0">
+      ${['all','today','7','month'].map(k=>`<span class="chip ${recRange===k?'on':''}" onclick="setRecRange('${k}')">${rangeLabel[k]}</span>`).join('')}
+    </div>
+    <label class="label">按类型看（进货流水用来核对库存，别只看卖出）</label>
+    <div class="chipbar" style="padding-top:0;padding-bottom:8px">
+      ${['sale','purchase','adjust','all'].map(k=>`<span class="chip ${recType===k?'on':''}" onclick="setRecType('${k}')">${typeLabel[k]} ${typeCount[k]||0}</span>`).join('')}
+    </div>
+    <div class="meta" style="margin:0 0 10px">筛出 <b>${shown.length}</b> 条 · 卖出 <b>${rangeQty}</b> 件 / <b>${money(rangeMoney)}</b>${rangeIn?(' · 进货 <b>'+rangeIn+'</b> 件'):''}${rangeAdj?(' · 调整 <b>'+(rangeAdj>0?'+':'')+rangeAdj+'</b>'):''}</div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <table class="tbl"><thead><tr><th>类型</th><th>商品</th><th>库存变动</th><th>金额</th><th>日期</th><th>操作</th></tr></thead><tbody>
+    ${view.length?view.map(s=>`<tr class="${s.gone?'gone':''}"><td><span class="tag ${s.type==='sale'?'t-out':(s.type==='purchase'?'t-ok':'t-cat')}">${s.type==='sale'?'卖':(s.type==='purchase'?'进':'调')}</span></td><td>${esc(s.name)}${s.gone?' <span class="tag t-slow">已删除</span>':''}</td><td class="${s.delta<0?'move-minus':'move-plus'}">${s.delta>0?'+':''}${s.delta}</td><td>${s.type==='adjust'?'—':money(s.money)}</td><td>${s.date.slice(5)}</td><td><span class="sale-del" onclick="delTx('${s.id}')">删除</span></td></tr>`).join(''):'<tr><td colspan="6" class="empty">暂无记录</td></tr>'}
+    ${view.length?`<tr class="sum-row"><td>合计</td><td colspan="2">卖出 ${rangeQty} 件 · 营业额 ${money(rangeMoney)}</td><td colspan="3">${rangeIn?('进货 '+rangeIn+' 件'):''}${rangeAdj?(' 调整 '+(rangeAdj>0?'+':'')+rangeAdj):''}</td></tr>`:''}
+    </tbody></table>
+  </div>
+  ${shown.length>view.length?`<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">展开全部（${shown.length} 条）</button>`:(salesExpanded&&shown.length>salesLimit?'<button class="btn btn-ghost" style="margin-top:-4px" onclick="toggleSales()">收起</button>':'')}
+`;
   document.getElementById('page').innerHTML=h;
+}
+function setRecRange(k){recRange=k;renderPerformance();}
+function setRecType(k){recType=k||'sale';renderPerformance();}
+
+/* ============================================================
+   库存盘点：拿实物数对账面数，差额自动记成一笔「库存调整」
+   —— 这是库存「自证」的最后一环：任何时候你都能用实物把账校准回来，
+      而且校准过程留痕，不会凭空改数字。
+   ============================================================ */
+function openStocktake(){
+  closeSheet();
+  document.getElementById('page').insertAdjacentHTML('beforeend',
+    `<div class="mask" onclick="closeSheet()"></div>
+     <div class="sheet" id="stkSheet"></div>`);
+  renderStocktake();
+}
+function renderStocktake(){
+  const el=document.getElementById('stkSheet'); if(!el)return;
+  const db=DB;
+  const bad=db.products.filter(p=>isStockBad(p,db));
+  const book=db.products.reduce((s,p)=>s+Number(p.stock||0),0);
+  const hist=db.products.reduce((s,p)=>s+stockFromHistory(p,db),0);
+  el.innerHTML=`
+  <div class="sheet-h">🧮 库存盘点<button class="x" onclick="closeSheet()">×</button></div>
+  <div class="stat-grid" style="margin-top:10px">
+    <div class="stat" style="background:var(--primary)"><div class="n">${book}</div><div class="l">账面库存合计</div></div>
+    <div class="stat" style="background:${bad.length?'var(--error)':'var(--success)'}"><div class="n">${hist}</div><div class="l">按流水推算合计</div></div>
+  </div>
+  <div class="meta" style="margin:10px 0 4px">${bad.length?('<b class="stk-bad">⚠ '+bad.length+' 个商品对不上</b>（多来自老数据流水不全）。逐个填实物数校正，或者一次性按现状重设期初：'):'✅ 全部对得上，库存可以放心信。'}</div>
+  ${bad.length?'<button class="btn btn-ghost" style="margin-bottom:10px" onclick="acceptAllBaseline()">一次性按现状重设期初（'+bad.length+' 个）</button>':''}
+  ${db.products.map(p=>{
+    const drift=stockDrift(p,db),badOne=isStockBad(p,db),hist=stockFromHistory(p,db);
+    return `<div class="row" style="align-items:flex-start;${badOne?'border-color:var(--error)':''}">
+      <div class="thumb" style="width:44px;height:44px;flex:0 0 44px" onclick="preview('${p.image}')">${thumbHTML(p)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="name" style="font-size:13.5px">${esc(p.name)}${Number(p.stock)<0?' <span class="badge-bad">负数</span>':''}${drift!==0?' <span class="badge-bad">对不上</span>':''}</div>
+        <div class="meta">账面 <b>${p.stock}</b> · 推算 <b>${hist}</b> · 期初 ${Number(p.baseStock||0)}${drift!==0?(' · <span class="stk-bad">差 '+drift+'</span>'):''}</div>
+        <div style="display:flex;gap:6px;margin-top:7px">
+          <input class="input" id="stk${p.id}" type="number" placeholder="实物数" style="padding:8px 12px">
+          <button class="btn btn-primary btn-xs" style="flex:0 0 auto" onclick="applyStocktake('${p.id}')">校正</button>
+        </div>
+        <div style="margin-top:6px"><span class="inline-btn" onclick="fillStk('${p.id}')">按推算值 ${hist}</span></div>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">还没有商品</div>'}
+`;
+}
+function applyStocktake(pid){
+  const p=DB.products.find(x=>x.id===pid); if(!p){toast('商品不存在');return;}
+  const el=document.getElementById('stk'+pid);
+  if(!el||el.value===''){toast('先填实物数量');return;}
+  const real=Math.floor(Number(el.value));
+  if(isNaN(real)){toast('实物数要填整数');return;}
+  const delta=real-Number(p.stock||0);
+  const wasDrift=stockDrift(p,DB);
+  if(delta!==0) setStockTo(p,real,'盘点校正：实物 '+real);
+  if(wasDrift!==0) rebaseline(p,DB);      // 历史偏差必须靠重设期初才能修掉
+  const drift=stockDrift(p,DB);
+  save();
+  const parts=[];
+  if(delta!==0) parts.push('库存 '+(delta>0?'+':'')+delta+' → '+p.stock);
+  if(wasDrift!==0) parts.push('历史偏差 '+wasDrift+' 已归零');
+  toast(drift===0?(parts.length?('已校正「'+p.name+'」：'+parts.join('，')):('「'+p.name+'」与账面一致'))
+    :('⚠「'+p.name+'」仍对不上，请导出备份找我看'));
+  renderStocktake();
+  try{ if(cur==='products') renderProducts(); if(cur==='board') renderBoard(); }catch(_){ }
+}
+function fillStk(pid){
+  const p=DB.products.find(x=>x.id===pid); if(!p)return;
+  const el=document.getElementById('stk'+pid);
+  if(el) el.value=stockFromHistory(p,DB);
+}
+/* 老数据常见情况：历史流水不全，导致一批商品「对不上」。
+   把当前账面数字当作事实、批量重设期初，不改库存、只让账目从此自洽。 */
+function acceptAllBaseline(){
+  const bad=badStockList(DB);
+  if(!bad.length){toast('没有需要处理的');return;}
+  if(!confirm('把当前账面库存当作事实，重设这 '+bad.length+' 个商品的期初？\n不会改动任何库存数字，只是让账目从此对得上。')) return;
+  const n=rebaselineAll(DB);
+  save(); toast('已处理 '+n+' 个商品，库存与流水恢复一致');
+  renderStocktake();
+  try{ if(cur==='products') renderProducts(); if(cur==='board') renderBoard(); }catch(_){ }
 }
 
 function renderRestock(){
   const db=DB;const arr=db.products.map(p=>({p,a:analytics(p,db)}));
   const needList=arr.filter(x=>x.a.need>0).sort((x,y)=>y.a.avgDaily-x.a.avgDaily)
     .map(x=>({id:x.p.id,name:x.p.name,image:x.p.image,stock:x.p.stock,avg:x.a.avgDaily.toFixed(1),need:x.a.need,cost:x.p.cost,price:x.p.price}));
-  const slowList=arr.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>x.a.avgDaily-x.a.avgDaily)
-    .map(x=>({id:x.p.id,name:x.p.name,total:x.a.totalSold,cover:x.a.coverDays===Infinity?'∞':Math.round(x.a.coverDays)}));
+  const slowList=arr.filter(x=>x.a.slow&&x.p.stock>0).sort((x,y)=>idleSortKey(y.a.idleDays)-idleSortKey(x.a.idleDays))
+    .map(x=>({id:x.p.id,name:x.p.name,total:x.a.totalSold,stock:x.p.stock,cover:coverText(x.p.stock,x.a.coverDays),idle:x.a.idleDays,never:x.a.never}));
   const needQty=needList.reduce((s,x)=>s+x.need,0);
   const cost=Math.round(needList.reduce((s,x)=>s+x.need*x.cost,0));
   const income=Math.round(needList.reduce((s,x)=>s+x.need*x.price,0));
   let h=`
   <div class="stat-grid">
     <div class="stat" style="background:var(--primary)"><div class="n">${needQty}</div><div class="l">需补货总数</div></div>
-    <div class="stat" style="background:var(--orange)"><div class="n">¥${cost}</div><div class="l">预计进货成本</div></div>
-    <div class="stat" style="background:var(--pink)"><div class="n">¥${income}</div><div class="l">预计可收回</div></div>
+    <div class="stat" style="background:var(--orange)"><div class="n">${money(cost)}</div><div class="l">预计进货成本</div></div>
+    <div class="stat" style="background:var(--pink)"><div class="n">${money(income)}</div><div class="l">预计可收回</div></div>
     <div class="stat" style="background:var(--blue)"><div class="n">${slowList.length}</div><div class="l">滞销别进</div></div>
   </div>
-  <div class="tip">按「日均销量 × ${db.settings.restockDays}天 − 现有库存」计算；滞销（上架满${db.settings.slowDays||14}天且日均&lt;${(db.settings.slowThreshold!=null?db.settings.slowThreshold:0.2)}）已排除。</div>
   <div class="section-title">📥 建议进货清单</div>
   <div class="card" style="padding:0;overflow:hidden">${needList.length?`
     <table class="tbl"><thead><tr><th>商品</th><th>库存</th><th>日均</th><th>建议进</th><th>补货</th></tr></thead><tbody>
-    ${needList.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.stock}</td><td>${x.avg}</td><td><b style="color:var(--primary-d)">${x.need}</b></td><td><button class="btn btn-primary btn-xs" onclick="openSheet('purchase','${x.id}','补货')">记</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂时不用补货，库存充足 👍</div>'}</div>
-  <div class="section-title">🐌 滞销别进清单</div>
-  <div class="card">${slowList.length?slowList.map(x=>`<div style="padding:6px 0"><div class="name" style="font-size:14px">${esc(x.name)} <span class="tag t-slow">滞销</span></div><div class="meta">近30天仅卖 ${x.total} 件 · 库存可卖 ${x.cover} 天</div></div>`).join(''):'<div class="empty">没有滞销商品，棒！</div>'}</div>`;
+    ${needList.map(x=>`<tr><td>${esc(x.name)}</td><td>${x.stock}</td><td>${x.avg}</td><td><b style="color:var(--primary-d)">${x.need}</b></td><td><button class="btn btn-primary btn-xs" onclick="openPick('purchase','${x.id}','补货')">记</button></td></tr>`).join('')}</tbody></table>`:'<div class="empty">暂时不用补货，库存充足 👍</div>'}</div>
+  <div class="section-title">🐌 滞销别进清单（${slowList.length} 个 · 按最久没卖排）</div>
+  <div class="card">${slowList.length?slowList.map(x=>`<div style="padding:6px 0"><div class="name" style="font-size:14px">${esc(x.name)} <span class="tag t-slow">${x.never?'从未卖出':'滞销'}</span></div><div class="meta">${idleText(x.idle)} · 现存 ${x.stock} 件 · 近${db.settings.periodDays}天卖 ${x.total} 件</div></div>`).join(''):'<div class="empty">没有滞销商品，棒！</div>'}</div>`;
   document.getElementById('page').innerHTML=h;
 }
 
@@ -594,23 +1189,49 @@ function renderSettings(){
   <div class="card">
     <div class="card-h">🐌 滞销判定</div>
     <label class="label">上架满多少天算「老商品」（这之前不计入滞销）</label>
-    <input class="input" id="slowDays" type="number" value="${db.settings.slowDays!=null?db.settings.slowDays:14}">
-    <label class="label">日均销量低于多少算滞销</label>
-    <input class="input" id="slowThreshold" type="number" step="0.1" value="${db.settings.slowThreshold!=null?db.settings.slowThreshold:0.2}">
-    <div class="tip">同时满足：①还有库存 ②上架满上面天数 ③日均低于阈值，才标记滞销；否则正常。</div>
+    <input class="input" id="slowDays" type="number" value="${db.settings.slowDays!=null?db.settings.slowDays:14}" oninput="updateSlowPreview()">
+    <label class="label">判定方式</label>
+    <select class="input" id="slowMode" onchange="onSlowModeChange()">
+      <option value="idle"${(db.settings.slowMode||'idle')==='idle'?' selected':''}>距上次卖出超过 X 天（推荐）</option>
+      <option value="abs"${(db.settings.slowMode||'idle')==='abs'?' selected':''}>日均销量低于 X 件（旧口径）</option>
+    </select>
+    <div id="slowIdleBox" style="display:${(db.settings.slowMode||'idle')==='abs'?'none':'block'}">
+      <label class="label">多久没卖出算滞销 X 天（默认 21）</label>
+      <input class="input" id="slowIdleDays" type="number" min="1" value="${db.settings.slowIdleDays!=null?db.settings.slowIdleDays:21}" oninput="updateSlowPreview()">
+      <div class="meta" style="margin-top:6px">从上架至今一件都没卖出的，无论天数一律算滞销。</div>
+    </div>
+    <div id="slowAbsBox" style="display:${(db.settings.slowMode||'idle')==='abs'?'block':'none'}">
+      <label class="label">日均销量低于多少算滞销（默认 0.2）</label>
+      <input class="input" id="slowThreshold" type="number" step="0.1" value="${db.settings.slowThreshold!=null?db.settings.slowThreshold:0.2}" oninput="updateSlowPreview()">
+      <div class="meta" style="margin-top:6px">这个口径受「统计周期」影响很大：周期设得越短，日均越小、被判滞销的越多。</div>
+    </div>
+    <div class="meta" id="slowPreview" style="margin-top:10px">${slowPreviewText(db)}</div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveSettings()">保存判定设置</button>
   </div>
   <div class="card">
-    <div class="card-h">🤖 智能识别</div>
-    <div class="meta" style="margin-bottom:10px">价格识别已内置在「商品」页的「🤖 识别拼多多价格」里，<b>完全在手机本地运行</b>（Tesseract 离线 OCR），免费、不上传图片，但准确度有限，复杂截图建议手动核对。</div>
+    <div class="card-h">🧮 库存盘点</div>
+    <div class="meta" style="margin-bottom:10px">库存 = <b>期初 + 进货 − 卖出 + 调整</b>。盘点会把「账面库存」和「按流水推算」摆一起比对，你可以填实物数一键校准，差额自动留痕。</div>
+    <button class="btn btn-primary" onclick="openStocktake()">${badStockList(db).length?('🧮 去盘点（有 '+badStockList(db).length+' 个异常）'):'🧮 做一次库存盘点'}</button>
+  </div>
+  <div class="card">
+    <div class="card-h">🩺 存储健康</div>
+    <div class="meta" style="margin-bottom:10px">每次记账后都会<b>回读校验</b>：确认真正写进存储的库存，和页面上算出来的一致。不一致会立刻在页面顶部挂红条。</div>
+    <div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name" style="font-size:13px">当前状态</div><div class="meta">${_store.ok?'记账可以正常保存':'<b>没有保存成功</b>，请立刻导出备份'}</div></div><div style="font-weight:800">${_store.ok?'<span class="chk-ok">✅ 正常</span>':'<span class="stk-bad">🚨 异常</span>'}</div></div>
+    <div class="meta">数据条数：${db.products.length} 个商品 / ${db.tx.length} 笔流水 · 存储版本 #${db.rev||0}</div>
+    <button class="btn btn-ghost btn-xs" style="margin-top:8px" onclick="selfCheck()">🔍 立刻自检一次</button>
   </div>
   <div class="card">
     <div class="card-h">💾 数据备份</div>
-    <div class="meta" style="margin-bottom:10px">数据保存在本浏览器，换设备请先导出备份。</div>
-    <button class="btn btn-green" onclick="exportData()">导出备份（下载JSON）</button>
-    <button class="btn btn-ghost" style="margin-top:8px" onclick="importData()">导入备份（选JSON文件）</button>
-    <button class="btn btn-danger" style="margin-top:8px" onclick="clearSample()">清空示例数据</button>
+    <div class="meta" style="margin-bottom:10px">每天打开页面时会<b>自动存一份当天快照</b>（保留最近 7 天，只含账目不含图片）。万一数据出问题，可以回到某一天。</div>
+    <button class="btn btn-green" onclick="exportData()">导出备份（下载 JSON）</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="importData()">导入备份（选 JSON 文件）</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="toggleBackups()">${showBackups?'收起历史快照':'查看历史快照（'+snapList().length+' 份）'}</button>
+    ${showBackups?('<div style="margin-top:10px">'+(snapList().length?snapList().map(d=>`<div class="row" style="margin-bottom:6px"><div style="flex:1"><div class="name" style="font-size:13px">${d}</div><div class="meta">${snapInfo(d)}</div></div><button class="btn btn-ghost btn-xs" style="flex:0 0 auto" onclick="restoreSnapshot('${d}')">恢复</button></div>`).join(''):'<div class="empty">还没有快照</div>')+'</div>'):''}
+    <div class="del-divider"></div>
+    <button class="btn btn-danger" style="margin-top:12px" onclick="clearSample()">清空全部数据</button>
+    <div class="del-hint">清空后不可恢复，建议先导出备份</div>
   </div>
-  <div class="tip">网页预览版数据存于当前浏览器（localStorage）。想正式进微信，请按「微信小程序落地方案」把 miniapp/ 导入开发者工具发布（免费）。</div>`;
+`;
   document.getElementById('page').innerHTML=h;
 }
 
@@ -620,16 +1241,81 @@ function saveSettings(){
   const pd=parseInt(document.getElementById('periodDays').value,10)||30;
   const dsEl=document.getElementById('defaultSafety');
   const ds=dsEl?parseInt(dsEl.value,10):10;
-  const sd=parseInt(document.getElementById('slowDays').value,10);
-  const st=parseFloat(document.getElementById('slowThreshold').value);
+  const slowNum=function(id,def,isFloat){
+    const el=document.getElementById(id); if(!el) return def;
+    const v=isFloat?parseFloat(el.value):parseInt(el.value,10);
+    return isNaN(v)?def:v;
+  };
+  const sd=slowNum('slowDays',14,false);
+  const st=slowNum('slowThreshold',0.2,true);
+  const si=slowNum('slowIdleDays',21,false);
+  const smEl=document.getElementById('slowMode');
+  const sm=(smEl&&smEl.value==='abs')?'abs':'idle';
   DB.settings.restockDays=rd;DB.settings.periodDays=pd;DB.settings.defaultSafety=isNaN(ds)?10:ds;
-  DB.settings.slowDays=isNaN(sd)?14:sd;DB.settings.slowThreshold=isNaN(st)?0.2:st;
+  DB.settings.slowDays=sd;
+  DB.settings.slowMode=sm;
+  DB.settings.slowIdleDays=Math.max(1,si);
+  DB.settings.slowThreshold=st;
   save();toast('已保存');render();
+}
+/* 切换判定方式：只显示当前方式对应的输入框，并刷新试算 */
+function onSlowModeChange(){
+  const m=(document.getElementById('slowMode')||{}).value||'idle';
+  const rb=document.getElementById('slowIdleBox'), ab=document.getElementById('slowAbsBox');
+  if(rb)rb.style.display=(m==='abs')?'none':'block';
+  if(ab)ab.style.display=(m==='abs')?'block':'none';
+  updateSlowPreview();
+}
+/* 试算：把输入框里的值临时套上去，告诉你「这样设置会判出几个滞销」，不落盘 */
+function updateSlowPreview(){
+  const el=document.getElementById('slowPreview'); if(!el)return;
+  const trial=JSON.parse(JSON.stringify(DB.settings||{}));
+  const gv=function(id,f){const e=document.getElementById(id);if(!e)return null;return f(e.value);};
+  const sd=gv('slowDays',function(v){return parseInt(v,10);}); if(sd!=null&&!isNaN(sd))trial.slowDays=sd;
+  const smEl=document.getElementById('slowMode'); if(smEl)trial.slowMode=(smEl.value==='abs')?'abs':'idle';
+  const si=gv('slowIdleDays',function(v){return parseInt(v,10);}); if(si!=null&&!isNaN(si))trial.slowIdleDays=si;
+  const st=gv('slowThreshold',function(v){return parseFloat(v);}); if(st!=null&&!isNaN(st))trial.slowThreshold=st;
+  el.innerHTML=slowPreviewText({products:DB.products,tx:DB.tx,settings:trial,rev:DB.rev});
+}
+function slowPreviewText(db){
+  const s=db.settings||{};
+  let eligible=0,slow=0,never=0;
+  db.products.forEach(function(p){
+    try{
+      const st=slowStat(p,db);
+      if(st.eligible)eligible++;
+      if(st.slow)slow++;
+      if(st.never&&Number(p.stock||0)>0)never++;
+    }catch(_){}
+  });
+  const how=(s.slowMode||'idle')==='abs'
+    ? ('近 '+(s.periodDays||30)+' 天日均销量低于 '+(s.slowThreshold!=null?s.slowThreshold:0.2)+' 件')
+    : ('距上次卖出超过 '+(s.slowIdleDays!=null?s.slowIdleDays:21)+' 天（从未卖出的全算）');
+  return '按当前设置试算：'+db.products.length+' 个商品里，有库存且上架已满 '+(s.slowDays!=null?s.slowDays:14)+' 天的有 <b>'+eligible+'</b> 个，其中会标为滞销的有 <b>'+slow+'</b> 个'
+    +(never?'（含从未卖出过的 '+never+' 个）':'')+'。<br>判定口径：'+how+'。调完记得点下面「保存判定设置」。';
 }
 function catTemplateListHTML(){
   const tpl=DB.settings.catTemplates||[];
   if(!tpl.length) return '<div class="empty" style="padding:10px 0">还没有分类，下面添加或在新增商品时点「＋ 新建分类」</div>';
-  return tpl.map(function(c,i){return '<div class="row" style="margin-bottom:6px"><div style="flex:1" class="name">'+esc(c)+'</div><span class="sale-del" onclick="delCatTemplate('+i+')">× 删除</span></div>';}).join('');
+  return tpl.map(function(c,i){return '<div class="row" style="margin-bottom:6px"><div style="flex:1" class="name">'+esc(c)+'</div><span class="inline-btn" onclick="renameCatTemplate('+i+')">✏️ 改名</span><span class="sale-del" style="margin-left:10px" onclick="delCatTemplate('+i+')">× 删除</span></div>';}).join('');
+}
+/* 分类改名：模板改名，并可选把已用该分类的商品一起改过去 */
+function renameCatTemplate(i){
+  const tpl=DB.settings.catTemplates||[];
+  if(i<0||i>=tpl.length)return;
+  const old=tpl[i];
+  const n=(window.prompt('修改分类名称：',old)||'').trim();
+  if(!n||n===old)return;
+  if(tpl.indexOf(n)!==-1){toast('已有同名分类');return;}
+  const used=DB.products.filter(function(p){return (p.cat||'')===old;});
+  let move=true;
+  if(used.length){
+    move=confirm('有 '+used.length+' 个商品的分类是「'+old+'」。\n\n确定 = 分类和这些商品一起改成「'+n+'」\n取消 = 只改分类名，商品仍留在「'+old+'」（会变成未收录分类）');
+  }
+  tpl[i]=n;
+  if(move)used.forEach(function(p){p.cat=n;});
+  save();renderSettings();
+  toast(move&&used.length?('已改名，'+used.length+' 个商品同步更新'):'已改名');
 }
 function addCatTemplate(){
   const v=(document.getElementById('catTplNew').value||'').trim();
@@ -684,302 +1370,6 @@ function onCatChange(selId){
   } else { sel.dataset.last=sel.value; }
 }
 
-/* ============ 智能识别（浏览器本地 OCR，无需任何 Key / 接口） ============ */
-let _tessLoad=null;
-function loadTesseract(){
-  if(window.Tesseract) return Promise.resolve(window.Tesseract);
-  if(_tessLoad) return _tessLoad;
-  _tessLoad=new Promise(function(res,rej){
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
-    s.onload=function(){res(window.Tesseract);};
-    s.onerror=function(){rej(new Error('识别组件加载失败'));};document.head.appendChild(s);
-  });
-  return _tessLoad;
-}
-function aiRecognize(){
-  const h=`<div class="mask" onclick="aiClose()"></div>
-  <div class="sheet">
-    <div class="sheet-h">🤖 识别拼多多价格（支持一张图多个商品）<button class="x" onclick="aiClose()">×</button></div>
-    <label class="label">上传拼多多截图 / 商品图</label>
-    <input class="input" id="aiFile" type="file" accept="image/*" style="padding:8px" onchange="aiFileChosen()">
-    <div id="aiPrev" style="margin-top:8px"></div>
-    <button class="btn btn-primary" id="aiRunBtn" style="margin-top:12px" onclick="aiRun()" disabled>开始识别</button>
-    <button class="btn btn-ghost" id="aiRegionBtn" style="margin-top:8px" onclick="aiRegionStart()">✂️ 框选单品识别（多个商品更准）</button>
-    <div id="aiLoading" class="meta" style="margin-top:10px;display:none"></div>
-    <div id="aiResult" style="margin-top:12px"></div>
-    <div class="tip">两种用法：①点「开始识别」整张图自动识别多个商品；②点「框选单品识别」拖动框住单个商品（名称+价格），松手即识别并生成一张卡片，几个商品就框几次。都无需任何 Key。</div>
-  </div>`;
-  document.getElementById('page').insertAdjacentHTML('beforeend',h);
-}
-function aiClose(){document.querySelectorAll('.mask,.sheet,.crop-stage').forEach(e=>e.remove());window._aiImg='';window._aiItems=[];}
-function aiFileChosen(){
-  const f=document.getElementById('aiFile').files[0];if(!f)return;
-  window._aiRaw=f;
-  compressImage(f,function(d){window._aiImg=d;document.getElementById('aiPrev').innerHTML='<div class="ai-img-wrap" style="max-height:260px"><img src="'+d+'" style="max-width:100%;max-height:260px;object-fit:contain"></div>';document.getElementById('aiRunBtn').disabled=false;},1024,0.82);
-}
-function aiRun(){
-  if(!window._aiImg){toast('请先上传图片');return;}
-  const btn=document.getElementById('aiRunBtn');btn.disabled=true;
-  const ld=document.getElementById('aiLoading');if(ld){ld.style.display='block';ld.textContent='正在识别…';}
-  aiRunLocal(btn,ld);
-}
-function aiRunLocal(btn,ld){
-  if(ld)ld.textContent='图像增强中…';
-  preprocessForOCR(window._aiImg,function(proc){
-    loadTesseract().then(function(Tess){
-      if(ld)ld.textContent='识别中… 0%';
-      return Tess.recognize(proc,'chi_sim+eng',{logger:function(m){if(m.status==='recognizing text'&&ld)ld.textContent='识别中… '+Math.round(m.progress*100)+'%';}});
-    }).then(function(r){
-      if(ld)ld.style.display='none';
-      aiBuildMulti(r.data.text||'');
-    }).catch(function(err){
-      if(ld)ld.style.display='none';btn.disabled=false;
-      toast('识别失败：'+(err&&err.message||err)+'（可手动填写）');
-    });
-  });
-}
-function extractPriceCandidates(text){
-  const lines=text.split(/\r?\n/).map(function(s){return s.trim();}).filter(Boolean);
-  const totalKw=/实付|合计|总价|共|小计|运费|优惠|满减|折扣|到手价|券后|补贴价|原价|定金|尾款/;
-  const cand=[];
-  lines.forEach(function(line){
-    if(totalKw.test(line)) return;
-    const ms=line.match(/¥\s?(\d+(?:\.\d+)?)/g);
-    if(ms){ms.forEach(function(mm){const v=parseFloat(mm.replace(/[¥\s]/g,''));if(v>0&&v<500)cand.push({val:v,line:line});});}
-  });
-  if(!cand.length){
-    lines.forEach(function(line){
-      if(totalKw.test(line)) return;
-      const ms=line.match(/\b(\d{1,3}(?:\.\d{1,2})?)\b/g);
-      if(ms){ms.forEach(function(mm){const v=parseFloat(mm);if(v>0&&v<500)cand.push({val:v,line:line});});}
-    });
-  }
-  return cand;
-}
-function extractNameCandidates(text){
-  const junk=/^(申请|退款|再次|拼单|催发货|实付|合计|总价|共|小计|运费|优惠|满减|折扣|到手价|券后|补贴价|拼团|秒杀|百亿|补贴|特价|团购|立减|7天无理由|退货|预计|小时内|发货|商家|打包|成功|潜力好店|店|官方|旗舰店|自营店|大小)/;
-  return text.split(/\r?\n/).map(function(s){return s.trim();}).filter(function(s){
-    return s.length>=5 && s.length<=70 && /[\u4e00-\u9fa5]/.test(s) && !/¥/.test(s) && !/^\d+(\.\d+)?$/.test(s) && !/^[\d\s\¥\.\,\×xX]+$/.test(s) && !junk.test(s);
-  }).slice(0,30);
-}
-function renderAiItems(){
-  const el=document.getElementById('aiItems');if(!el)return;
-  el.innerHTML='';
-  window._aiItems.forEach(function(it,idx){
-    const h=`<div class="ai-item" id="aiItem${idx}" onclick="aiFocusItem(${idx})">
-    <div class="ai-item-h"><span class="n">商品 ${idx+1}</span><span class="sale-del" onclick="event.stopPropagation();aiRemoveItem(${idx})">删除</span></div>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-      <div class="thumb" id="aiThumb${idx}" onclick="event.stopPropagation();aiCropStart(${idx})">${it.image?'<img src="'+it.image+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px">':'🖼'}</div>
-      <div style="flex:1">
-        <input class="input" id="aiName${idx}" placeholder="商品名" value="${esc(it.name||'')}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'name',this.value)">
-        <select class="input" id="aiCat${idx}" style="margin-top:6px" data-last="${esc(it.cat||'')}" onfocus="aiFocusItem(${idx})" onchange="onCatChange('aiCat${idx}')">${catOptionsHTML(it.cat||'')}</select>
-      </div>
-    </div>
-    <div style="display:flex;gap:6px">
-      <input class="input" id="aiCost${idx}" type="number" placeholder="进货价" value="${it.cost||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'cost',this.value)">
-      <input class="input" id="aiPrice${idx}" type="number" placeholder="售价" value="${it.price||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'price',this.value)">
-      <input class="input" id="aiStock${idx}" type="number" placeholder="库存" value="${it.stock||''}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'stock',this.value)">
-      <input class="input" id="aiSafe${idx}" type="number" placeholder="预警" value="${it.safetyStock||10}" onfocus="aiFocusItem(${idx})" oninput="aiSync(${idx},'safetyStock',this.value)">
-    </div>
-    <div style="margin-top:6px"><span class="inline-btn" onclick="event.stopPropagation();aiCropStart(${idx})">从图片裁剪小图</span></div>
-  </div>`;
-    el.insertAdjacentHTML('beforeend',h);
-  });
-}
-function aiBuildMulti(text){
-  const prices=extractPriceCandidates(text);
-  const names=extractNameCandidates(text);
-  const uniqPrices=[];
-  prices.forEach(function(c){if(uniqPrices.indexOf(c.val)===-1)uniqPrices.push(c.val);});
-  const nameChips=names.length?'<div class="chip-list">'+names.map(function(n,i){return '<span class="chip" onclick="aiFillName('+i+',this)" data-name="'+esc(n)+'">'+esc(n)+'</span>';}).join('')+'</div>':'<div class="meta">未识别到合适商品名，请手动输入</div>';
-  const priceChips=uniqPrices.length?'<label class="label">识别到的价格（点选填充进货价）</label><div class="chip-list">'+uniqPrices.map(function(v){return '<span class="chip chip-price" onclick="aiFillPrice('+v+')">¥'+v+'</span>';}).join('')+'</div>':'<div class="meta">未识别到价格，请手动输入</div>';
-  const autoCount=Math.max(1,Math.min(names.length,6));
-  const autoItems=[];
-  for(let i=0;i<autoCount;i++){
-    autoItems.push({name:names[i]||'',cost:uniqPrices[i]||'',price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
-  }
-  window._aiItems=autoItems;
-  window._aiText=text;
-  window._aiNames=names;
-  window._aiPrices=uniqPrices;
-  window._aiActiveIdx=0;
-  const h=`<div class="ai-grid">
-    <div>
-      <div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)">
-        <img src="${window._aiImg}" id="aiImgTag">
-        <div class="ai-img-note">点击图片可选择/裁剪商品小图</div>
-      </div>
-      <label class="label" style="margin-top:10px">识别到的商品名（点选）</label>
-      ${nameChips}
-      ${names.length?'<div class="tip" style="margin-top:6px">已按顺序自动填入左侧，若不对，点名字即可替换当前商品</div>':''}
-    </div>
-    <div>
-      ${priceChips}
-      ${uniqPrices.length?'<div class="tip" style="margin-top:6px">价格已自动填入「进货价」，点价格可替换当前编辑商品</div>':''}
-    </div>
-  </div>
-  <div id="aiItems"></div>
-  <button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button>
-  <button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>
-  <div class="tip" style="margin-top:8px">已按截图顺序自动生成商品卡片，检查名字/价格即可点「批量添加」。如需配图，点商品卡片左边的小图或「从图片裁剪小图」选对应位置。</div>`;
-  document.getElementById('aiResult').innerHTML=h;
-  renderAiItems();
-  aiFocusItem(0);
-}
-function aiAddItem(){
-  const idx=window._aiItems.length;
-  window._aiItems.push({name:'',cost:'',price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
-  renderAiItems();aiFocusItem(idx);
-}
-function aiFocusItem(idx){
-  window._aiActiveIdx=idx;
-  document.querySelectorAll('.ai-item').forEach(function(el,i){el.style.borderColor=(i===idx)?'var(--primary)':'';el.style.background=(i===idx)?'var(--primary-soft)':'#fff';});
-}
-function aiSync(idx,field,v){if(window._aiItems[idx])window._aiItems[idx][field]=v;}
-function aiFillName(i,el){
-  const idx=window._aiActiveIdx;if(idx==null||!window._aiItems[idx])return;
-  const name=el?el.dataset.name:(window._aiNames[i]||'');window._aiItems[idx].name=name;
-  const inp=document.getElementById('aiName'+idx);if(inp)inp.value=name;aiFocusItem(idx);
-}
-function aiFillPrice(v){
-  const idx=window._aiActiveIdx;if(idx==null||!window._aiItems[idx])return;
-  window._aiItems[idx].cost=v;const inp=document.getElementById('aiCost'+idx);if(inp)inp.value=v;aiFocusItem(idx);
-}
-function aiRemoveItem(idx){
-  if(!window._aiItems[idx])return;
-  window._aiItems.splice(idx,1);
-  renderAiItems();
-  if(!window._aiItems.length){aiAddItem();}
-  else{aiFocusItem(Math.min(window._aiActiveIdx||0,window._aiItems.length-1));}
-}
-function aiCropStart(idx){
-  const targetIdx=idx>=0?idx:(window._aiActiveIdx!=null?window._aiActiveIdx:0);
-  window._aiCropIdx=targetIdx;
-  if(document.getElementById('aiCropStage'))return;
-  const h=`<div class="crop-stage" id="aiCropStage" onclick="if(event.target.id==='aiCropStage')aiCropCancel()">
-    <div class="crop-hint">点击图片上该商品的位置，会自动裁剪出小图（点空白处取消）</div>
-    <img src="${window._aiImg}" id="aiCropImg" onclick="aiCropClick(event)">
-    <button class="crop-done" onclick="aiCropCancel()">取消裁剪</button>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend',h);
-}
-function aiCropClick(e){
-  const img=document.getElementById('aiCropImg');if(!img)return;
-  const rect=img.getBoundingClientRect();
-  const x=e.clientX-rect.left,y=e.clientY-rect.top;
-  const naturalW=img.naturalWidth,naturalH=img.naturalHeight;
-  const scaleX=naturalW/rect.width,scaleY=naturalH/rect.height;
-  const nx=x*scaleX,ny=y*scaleY;
-  const size=Math.min(naturalW,naturalH,260);
-  let cx=Math.max(size/2,Math.min(naturalW-size/2,nx));let cy=Math.max(size/2,Math.min(naturalH-size/2,ny));
-  let sx=Math.max(0,cx-size/2),sy=Math.max(0,cy-size/2);
-  const c=document.createElement('canvas');c.width=size;c.height=size;
-  c.getContext('2d').drawImage(img,sx,sy,size,size,0,0,size,size);
-  const data=c.toDataURL('image/jpeg',0.72);
-  const idx=window._aiCropIdx;
-  if(idx>=0&&window._aiItems[idx]){
-    window._aiItems[idx].image=data;
-    const thumb=document.getElementById('aiThumb'+idx);if(thumb)thumb.innerHTML='<img src="'+data+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px">';
-  }
-  const s=document.getElementById('aiCropStage');if(s)s.remove();aiFocusItem(idx);
-}
-function aiCropCancel(){const s=document.getElementById('aiCropStage');if(s)s.remove();}
-function aiConfirmMulti(){
-  const items=(window._aiItems||[]).map(function(it,i){return it?{it:it,i:i}:null;}).filter(Boolean);
-  if(!items.length){toast('请至少添加一个商品');return;}
-  let added=0,skip=0;
-  items.forEach(function(pair){
-    const idx=pair.i;const it=pair.it;
-    const name=(document.getElementById('aiName'+idx).value||'').trim();
-    if(!name){skip++;return;}
-    if(DB.products.some(function(p){return p.name===name;})){skip++;return;}
-    const catVal=(document.getElementById('aiCat'+idx).value||'').trim();
-    const safe=Number(document.getElementById('aiSafe'+idx).value)||(DB.settings.defaultSafety||10);
-    DB.products.push({id:uid(),createdAt:Date.now(),name:name,cat:catVal==='__new__'?'':catVal,cost:Number(document.getElementById('aiCost'+idx).value)||0,price:Number(document.getElementById('aiPrice'+idx).value)||0,stock:Number(document.getElementById('aiStock'+idx).value)||0,safetyStock:safe,unit:'个',image:it.image||''});added++;
-  });
-  save();aiClose();toast('已添加 '+added+' 个'+(skip?'，跳过 '+skip+' 个':''));render();
-}
-
-/* ===== 本地 OCR 增强：图像预处理 + 单品框选识别 ===== */
-function preprocessForOCR(src,cb){
-  try{
-    const img=new Image();img.onload=function(){
-      try{
-        let w=img.width,h=img.height;
-        const scale=w<1400?2:1;
-        w=Math.round(w*scale);h=Math.round(h*scale);
-        const c=document.createElement('canvas');c.width=w;c.height=h;
-        const ctx=c.getContext('2d');if(!ctx){cb(src);return;}
-        ctx.drawImage(img,0,0,w,h);
-        let data;try{data=ctx.getImageData(0,0,w,h);}catch(e){cb(c.toDataURL('image/png'));return;}
-        const d=data.data;const k=1.7;
-        for(let i=0;i<d.length;i+=4){
-          let gray=0.299*d[i]+0.587*d[i+1]+0.114*d[i+2];
-          gray=(gray-128)*k+128;
-          if(gray<0)gray=0;else if(gray>255)gray=255;
-          d[i]=d[i+1]=d[i+2]=gray;
-        }
-        ctx.putImageData(data,0,0);
-        cb(c.toDataURL('image/png'));
-      }catch(e){cb(src);}
-    };img.onerror=function(){cb(src);};img.src=src;
-  }catch(e){cb(src);}
-}
-function aiRegionStart(){
-  const prev=document.getElementById('aiPrev');
-  if(!prev||!prev.querySelector('img')){toast('请先上传图片');return;}
-  const stage=document.createElement('div');stage.id='aiRegionStage';
-  stage.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:center;justify-content:center;flex-direction:column';
-  const box=document.createElement('div');box.style.cssText='position:relative;max-width:94vw;max-height:72vh;touch-action:none;user-select:none';
-  const im=document.createElement('img');im.src=window._aiImg;im.style.cssText='max-width:94vw;max-height:72vh;display:block;border-radius:12px;pointer-events:none;-webkit-user-drag:none';
-  const sel=document.createElement('div');sel.style.cssText='position:absolute;border:2px dashed #ffd54a;background:rgba(255,213,74,.18);display:none;box-sizing:border-box';
-  const hint=document.createElement('div');hint.style.cssText='color:#fff;font-size:14px;margin-bottom:10px;padding:0 16px;text-align:center';hint.textContent='拖动框选一个商品（名称+价格区域），松手即识别；点空白处取消';
-  box.appendChild(im);box.appendChild(sel);stage.appendChild(hint);stage.appendChild(box);document.body.appendChild(stage);
-  let sx=0,sy=0,moving=false;
-  function rect(){return im.getBoundingClientRect();}
-  function pos(e){const r=rect();return {x:e.clientX-r.left,y:e.clientY-r.top,w:r.width,h:r.height};}
-  function down(e){e.preventDefault();const p=pos(e);moving=true;sx=p.x;sy=p.y;sel.style.display='block';sel.style.left=p.x+'px';sel.style.top=p.y+'px';sel.style.width='0px';sel.style.height='0px';}
-  function move(e){if(!moving)return;const p=pos(e);const x=Math.min(sx,p.x),y=Math.min(sy,p.y),w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);sel.style.left=x+'px';sel.style.top=y+'px';sel.style.width=w+'px';sel.style.height=h+'px';}
-  function up(e){if(!moving)return;moving=false;const p=pos(e);const w=Math.abs(p.x-sx),h=Math.abs(p.y-sy);window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);
-    if(w<20||h<20){sel.style.display='none';return;}
-    const r=rect();const scaleX=im.naturalWidth/r.width,scaleY=im.naturalHeight/r.height;
-    const nx=Math.round(Math.min(sx,p.x)*scaleX),ny=Math.round(Math.min(sy,p.y)*scaleY),nw=Math.round(w*scaleX),nh=Math.round(h*scaleY);
-    stage.remove();aiRegionProcess(nx,ny,nw,nh);
-  }
-  box.addEventListener('pointerdown',down);
-  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);
-  stage.addEventListener('click',function(e){if(e.target===stage){stage.remove();window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);}});
-}
-function ensureAiResult(){
-  if(document.getElementById('aiItems'))return;
-  const res=document.getElementById('aiResult');if(!res)return;
-  res.innerHTML='<div class="ai-grid"><div><div class="ai-img-wrap" id="aiImgWrap" onclick="aiCropStart(-1)"><img src="'+window._aiImg+'" id="aiImgTag"><div class="ai-img-note">点击图片可选择/裁剪商品小图</div></div><label class="label" style="margin-top:10px">单品识别结果</label><div class="tip" style="margin-top:6px">已按你框选的区域生成商品卡片，检查名字/价格即可点「批量添加」。继续框选可再加商品。</div></div><div></div></div><div id="aiItems"></div><button class="btn btn-primary" style="margin-top:12px" onclick="aiAddItem()">＋ 添加一个商品</button><button class="btn btn-green" style="margin-top:8px" onclick="aiConfirmMulti()">批量添加</button>';
-}
-function aiRegionProcess(nx,ny,nw,nh){
-  if(!Array.isArray(window._aiItems))window._aiItems=[];
-  const img=new Image();img.onload=function(){
-    const c=document.createElement('canvas');c.width=nw;c.height=nh;
-    c.getContext('2d').drawImage(img,nx,ny,nw,nh,0,0,nw,nh);
-    const region=c.toDataURL('image/png');
-    const ld=document.getElementById('aiLoading');if(ld){ld.style.display='block';ld.textContent='识别单品中…';}
-    preprocessForOCR(region,function(proc){
-      loadTesseract().then(function(T){return T.recognize(proc,'chi_sim+eng');}).then(function(r){
-        if(ld)ld.style.display='none';
-        const text=r.data.text||'';
-        const names=extractNameCandidates(text);
-        const prices=extractPriceCandidates(text);
-        const name=names[0]||'';
-        const cost=prices.length?String(prices[0].val):'';
-        ensureAiResult();
-        window._aiItems.push({name:name,cost:cost,price:'',stock:'',image:'',cat:'',safetyStock:DB.settings.defaultSafety!=null?DB.settings.defaultSafety:10});
-        renderAiItems();aiFocusItem(window._aiItems.length-1);
-        toast('已识别：'+(name||'未识别到名称')+(cost?(' ¥'+cost):''));
-      }).catch(function(err){if(ld)ld.style.display='none';toast('单品识别失败：'+(err&&err.message||err));});
-    });
-  };img.onerror=function(){toast('图片加载失败');};img.src=window._aiImg;
-}
-
 /* 日历 */
 function prevMonth(){let y=calState.y,m=calState.m-1;if(m<0){m=11;y--;}calState={y,m,selDay:''};renderPerformance();}
 function nextMonth(){let y=calState.y,m=calState.m+1;if(m>11){m=0;y++;}calState={y,m,selDay:''};renderPerformance();}
@@ -988,73 +1378,243 @@ function tapDay(iso){if(iso===calState.selDay){calState.selDay='';}else{calState
 /* 售出记录展开/收起 */
 function toggleSales(){salesExpanded=!salesExpanded;if(cur==='performance')renderPerformance();}
 
-/* 删除一笔售出记录（库存回滚） */
-function delSale(id){
+/* 删除一笔流水（售出/进货/调整通用）：删掉多少，库存就按同样幅度反向回去 */
+function delTx(id){
   const tx=DB.tx.find(x=>x.id===id);if(!tx)return;
   const p=DB.products.find(y=>y.id===tx.productId);
   const pname=p?p.name:'该商品';
-  if(!confirm('删除这笔记录？\n将删除「'+pname+' 卖出 '+tx.qty+'」'+(p?('，并把库存补回 '+tx.qty+' 个。'):'。'))) return;
-  if(p)p.stock+=tx.qty;
+  const kind=tx.type==='sale'?'卖出':(tx.type==='purchase'?'进货':'库存调整');
+  let effect='';
+  if(p){
+    const back=-txDelta(tx);
+    effect=back>0?('，库存加回 '+back+' 个。'):('，库存减掉 '+Math.abs(back)+' 个。');
+  }
+  if(!confirm('删除这笔记录？\n「'+pname+' '+kind+' '+tx.qty+'」'+(p?effect:'')+'\n\n删记录会同步改库存，请确认没删错。')) return;
+  if(p)p.stock=Number(p.stock||0)-txDelta(tx);
   DB.tx=DB.tx.filter(x=>x.id!==id);
-  save();toast('已删除「'+pname+'」');renderPerformance();
+  const drift=p?stockDrift(p,DB):0;
+  save();
+  toast(drift===0?('已删除「'+pname+'」的'+kind+'记录'):'⚠ 已删除，但库存校验未通过，请盘点');
+  render();
 }
 
-/* 记账弹层 */
-function openSheet(type,pid,label){
-  const db=DB;let pidx=0;if(pid){const i=db.products.findIndex(p=>p.id===pid);if(i>=0)pidx=i;}
-  const opts=db.products.map((p,i)=>`<option value="${i}" ${i===pidx?'selected':''}>${esc(p.name)}（库存${p.stock}）</option>`).join('');
-  let title,btnText;
-  if(label==='补货'){title='🛒 记补货';btnText='确认补货';}
-  else{title=type==='sale'?'⚡ 记卖出':'📥 记进货';btnText=type==='sale'?'确认卖出':'确认进货';}
-  const p0=db.products[pidx]||{price:0};
-  const defPrice=type==='sale'?p0.price:0;
-  const priceBlock=type==='sale'?`
-    <label class="label">成交单价（讲价就改这里，默认标价 ¥${defPrice}）</label>
-    <input class="input" id="sheetPrice" type="number" value="${defPrice}" oninput="updSheetTotal()">
-    <div style="font-size:13px;color:#6b5d4b;margin:6px 0 2px">本笔合计：<b style="color:var(--primary-d);font-size:15px" id="sheetTotal">¥${(defPrice*1).toFixed(2)}</b></div>`:'';
+/* ============================================================
+   v2 记一笔：两步式
+   第 1 步 带照片网格 + 吸顶的搜索/分类 → 选商品（列表按累计销量降序，卖得好的在前）
+   第 2 步 数量（含快捷数量）+ 成交单价（含标价/折扣）+ 卖出日期 + 备注 → 确认
+   ============================================================ */
+let _pickCatNames=['__all__'];
+function openPick(type,pid,label){
+  if(pid){ openTxStep(type,pid,label||''); return; }
+  closeSheet();                                  // 必须先清场：closeSheet 会重置 _pick/_tx
+  window._pick={type:type||'sale',cat:'__all__',kw:'',label:label||''};
   const h=`<div class="mask" onclick="closeSheet()"></div>
-  <div class="sheet">
+  <div class="sheet" id="pickSheet"></div>`;
+  document.getElementById('page').insertAdjacentHTML('beforeend',h);
+  renderPick();
+}
+function pickCats(){
+  const map={};
+  DB.products.forEach(p=>{const c=(p.cat||'').trim()||'未分类';map[c]=(map[c]||0)+1;});
+  return Object.keys(map).map(c=>({c:c,n:map[c]})).sort((a,b)=>b.n-a.n||a.c.localeCompare(b.c,'zh'));
+}
+/* 选商品列表：先按分类/搜索过滤，再按「累计销量」降序 —— 卖得好的排最前，手机上最好找。
+   不提供排序方式选择器：固定按销量排就够了。同一销量时按名称稳定排序，避免顺序乱跳。 */
+function pickRows(){
+  const st=window._pick||{};
+  const kw=(st.kw||'').trim().toLowerCase();
+  return DB.products.filter(p=>{
+    if(st.cat&&st.cat!=='__all__'&&((p.cat||'').trim()||'未分类')!==st.cat)return false;
+    if(kw&&String(p.name||'').toLowerCase().indexOf(kw)===-1)return false;
+    return true;
+  }).map(p=>({p:p,sold:allTime(p,DB).qty}))
+    .sort((x,y)=>y.sold-x.sold||String(x.p.name||'').localeCompare(String(y.p.name||''),'zh'));
+}
+function pickGridHTML(rows,type){
+  if(!rows.length) return '<div class="empty">没有匹配的商品</div>';
+  return `<div class="pick-grid">${rows.map(r=>{
+    const p=r.p, noStock=type==='sale'&&Number(p.stock||0)<=0;
+    return `<div class="pick-item ${noStock?'dis':''}" onclick="pickChoose('${p.id}')">
+      <div class="ph">${p.image?`<img src="${p.image}">`:'🧸'}</div>
+      <div class="bd">
+        <div class="nm">${esc(p.name)}</div>
+        <div class="mt"><span>${esc(p.cat)||'未分类'}</span><span class="r">${type==='sale'?'库存 '+p.stock:'进¥'+p.cost}</span></div>
+        <div class="mt"><span>累计卖出 <span class="pick-sold">${r.sold}</span> 件</span></div>
+      </div>
+    </div>`;}).join('')}</div>`;
+}
+function renderPick(){
+  const st=window._pick||{type:'sale',cat:'__all__',kw:'',label:''};
+  const db=DB;
+  const cats=pickCats();
+  _pickCatNames=['__all__'].concat(cats.map(c=>c.c));
+  if(st.cat!=='__all__' && !cats.some(c=>c.c===st.cat)) st.cat='__all__';
+  const title=st.type==='sale'?'⚡ 选择要卖出的商品':(st.label==='补货'?'🛒 选择要补货的商品':'📥 选择要进货的商品');
+  const el=document.getElementById('pickSheet');if(!el)return;
+  el.className='sheet pick-sheet';
+  el.innerHTML=`
+  <div class="pick-head">
     <div class="sheet-h">${title}<button class="x" onclick="closeSheet()">×</button></div>
-    <label class="label">商品</label>
-    <select class="input" id="sheetPid" onchange="onSheetPid()">${opts}</select>
+    <input class="input" id="pickKw" placeholder="🔍 搜索商品名" value="${esc(st.kw)}" oninput="pickSearch(this.value)">
+    <div class="chipbar">
+      <span class="chip ${st.cat==='__all__'?'on':''}" onclick="pickCat(0)">全部 ${db.products.length}</span>
+      ${cats.map((c,i)=>`<span class="chip ${st.cat===c.c?'on':''}" onclick="pickCat(${i+1})">${esc(c.c)} ${c.n}</span>`).join('')}
+    </div>
+  </div>
+  <div class="pick-body" id="pickBody">
+    ${pickGridHTML(pickRows(),st.type)}
+  </div>
+  <div class="pick-foot">
+    <button class="btn btn-ghost" onclick="closeSheet();openAdd()">＋ 新增商品</button>
+  </div>`;
+}
+function pickSearch(v){
+  const st=window._pick;if(!st)return;
+  st.kw=v;
+  // 只换掉网格本身：输入框不动，焦点与光标位置得以保留
+  const body=document.getElementById('pickBody');if(!body)return;
+  const html=pickGridHTML(pickRows(),st.type);
+  const holder=body.querySelector('.pick-grid,.empty');
+  if(holder){ holder.insertAdjacentHTML('beforebegin',html); holder.remove(); }
+  else body.insertAdjacentHTML('afterbegin',html);
+}
+function pickCat(i){window._pick.cat=_pickCatNames[i]||'__all__';renderPick();}
+function pickChoose(pid){
+  const st=window._pick||{type:'sale',label:''};
+  const p=DB.products.find(x=>x.id===pid);if(!p)return;
+  if(st.type==='sale'&&p.stock<=0){toast('「'+p.name+'」库存 0，先补货再卖');return;}
+  openTxStep(st.type,pid,st.label||'');
+}
+
+/* 第 2 步：数量 + 单价 + 卖出日期 + 备注 */
+function openTxStep(type,pid,label){
+  const p=DB.products.find(x=>x.id===pid);
+  if(!p){toast('商品不存在');return;}
+  closeSheet();
+  window._tx={type:type,pid:pid,label:label||''};
+  const isSale=type==='sale';
+  const defPrice=p.price;
+  const h=`<div class="mask" onclick="closeSheet()"></div>
+  <div class="sheet" id="txSheet">
+    <div class="sheet-h">${isSale?'⚡ 确认卖出':(label==='补货'?'🛒 确认补货':'📥 确认进货')}<button class="x" onclick="closeSheet()">×</button></div>
+    <div class="row" style="margin-bottom:12px">
+      <div class="thumb" onclick="preview('${p.image}')">${thumbHTML(p)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="name">${esc(p.name)}</div>
+        <div class="meta">${esc(p.cat)||'未分类'} · 库存 ${p.stock} · 标价 ¥${p.price}</div>
+      </div>
+      <button class="btn btn-ghost btn-xs" onclick="openPick('${type}','','${label||''}')">换一个</button>
+    </div>
     <label class="label">数量</label>
-    <input class="input" id="sheetQty" type="number" placeholder="输入数量" value="1" oninput="updSheetTotal()">
-    ${priceBlock}
+    <div class="qty-row">
+      <button class="qty-btn" onclick="bumpQty(-1)">−</button>
+      <input class="input qty-input" id="txQty" type="number" inputmode="numeric" value="1" oninput="updTxTotal()">
+      <button class="qty-btn" onclick="bumpQty(1)">＋</button>
+    </div>
+    <div class="chip-list" style="margin-top:8px">
+      ${[1,2,3,5,10].map(n=>`<span class="chip" onclick="setQty(${n})">${n}</span>`).join('')}
+      ${isSale&&p.stock>0?`<span class="chip chip-price" onclick="setQty(${p.stock})">全部 ${p.stock}</span>`:''}
+    </div>
+    ${isSale?`
+    <label class="label">成交单价（讲价就改这里，默认标价 ¥${defPrice}）</label>
+    <input class="input" id="txPrice" type="number" value="${defPrice}" oninput="updTxTotal()">
+    <div class="chip-list" style="margin-top:8px">
+      <span class="chip chip-price" onclick="setPrice(${defPrice})">按标价 ¥${defPrice}</span>
+      ${[[0.9,9],[0.8,8],[0.5,5]].map(kv=>`<span class="chip" onclick="setPrice(${Math.round(defPrice*kv[0]*100)/100})">${kv[1]}折 ¥${Math.round(defPrice*kv[0]*100)/100}</span>`).join('')}
+    </div>`:''}
+    <div class="sum-box">
+      <div class="l1"><span id="txTotalLabel">${isSale?'本笔合计':'本笔进货成本'}</span><b style="color:var(--primary-d);font-size:19px" id="txTotal">¥0.00</b></div>
+      <div class="l2" id="txAfter"></div>
+    </div>
+    ${isSale?`
+    <label class="label">卖出日期（忘了当天记，可改成那天）</label>
+    <input class="input" id="txDate" type="date" value="${todayISO()}" max="${todayISO()}" onchange="updTxDateHint()">
+    <div class="chip-list" style="margin-top:8px">
+      <span class="chip" onclick="setTxDate(0)">今天</span>
+      <span class="chip" onclick="setTxDate(1)">昨天</span>
+      <span class="chip" onclick="setTxDate(2)">前天</span>
+    </div>
+    <div class="meta" id="txDateHint" style="margin-top:6px"></div>`:''}
     <label class="label">备注（可选）</label>
-    <input class="input" id="sheetNote" placeholder="如：客人讲价">
-    <button class="btn btn-primary" style="margin-top:14px" onclick="saveTx('${type}','${label||''}')">${btnText}</button>
+    <input class="input" id="txNote" placeholder="${isSale?'如：客人讲价 / 摊位A':'如：进货渠道'}">
+    <button class="btn btn-primary" style="margin-top:14px" onclick="confirmTx('${type}','${pid}','${label||''}')">${isSale?'确认卖出':(label==='补货'?'确认补货':'确认进货')}</button>
   </div>`;
   document.getElementById('page').insertAdjacentHTML('beforeend',h);
+  updTxTotal();
+  updTxDateHint();
 }
-function updSheetTotal(){
-  const pidEl=document.getElementById('sheetPid');if(!pidEl)return;
-  const p=DB.products[parseInt(pidEl.value,10)];
-  const pe=document.getElementById('sheetPrice');
-  const price=pe?Number(pe.value)||0:0;
-  const qty=Math.floor(Number(document.getElementById('sheetQty').value)||0);
-  const el=document.getElementById('sheetTotal');if(el)el.textContent='¥'+(price*qty).toFixed(2);
+function setQty(n){const el=document.getElementById('txQty');if(el)el.value=Math.max(1,Math.floor(n));updTxTotal();}
+function bumpQty(d){const el=document.getElementById('txQty');if(!el)return;el.value=Math.max(1,(Math.floor(Number(el.value)||0))+d);updTxTotal();}
+function setPrice(v){const el=document.getElementById('txPrice');if(el)el.value=v;updTxTotal();}
+/* 卖出日期：默认今天。忘记当天记账时选「昨天/前天」补上，统计仍会落在正确的那一天。
+   只到「日」不到「时分」：全部统计与日历都是按天口径，多一位时分会让它们全部失真。 */
+function setTxDate(back){
+  const el=document.getElementById('txDate');if(!el)return;
+  const d=new Date();d.setDate(d.getDate()-Math.max(0,Math.floor(back)||0));
+  el.value=d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate());
+  updTxDateHint();
 }
-function onSheetPid(){
-  const pidEl=document.getElementById('sheetPid');if(!pidEl)return;
-  const p=DB.products[parseInt(pidEl.value,10)];
-  const pe=document.getElementById('sheetPrice');if(pe&&p)pe.value=p.price;
-  updSheetTotal();
+function updTxDateHint(){
+  const el=document.getElementById('txDateHint');if(!el)return;
+  const inp=document.getElementById('txDate');
+  const v=inp?String(inp.value||'').slice(0,10):'';
+  const t=todayISO();
+  if(!v){ el.innerHTML=''; return; }
+  el.innerHTML=(v===t)?'':'<b style="color:var(--primary-d)">补记</b>：这笔会算在 '+v.slice(5,7)+'月'+v.slice(8,10)+'日'; 
 }
-function closeSheet(){document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());}
-function saveTx(type,label){
-  const db=DB;const idx=parseInt(document.getElementById('sheetPid').value,10);
-  const pid=db.products[idx]&&db.products[idx].id;
-  const qty=Math.floor(Number(document.getElementById('sheetQty').value)||0);
-  if(!pid){toast('请选择商品');return;}
-  if(qty<=0){toast('数量需大于0');return;}
-  const p=db.products.find(x=>x.id===pid);
-  if(type==='sale'&&qty>p.stock){if(!confirm('库存只有 '+p.stock+'，仍记为卖出 '+qty+' 吗？'))return;}
-  const price=type==='sale'?(Number((document.getElementById('sheetPrice')||{}).value)||0):0;
-  const amount=type==='sale'?price*qty:(type==='purchase'?p.cost*qty:0);
-  if(type==='sale')p.stock-=qty;else p.stock+=qty;
-  db.tx.push({id:uid(),productId:pid,type,qty,amount:amount||undefined,date:todayISO(),note:document.getElementById('sheetNote').value});
-  save();closeSheet();toast(label==='补货'?'已补货':(type==='sale'?'已卖出':'已进货'));render();
+function updTxTotal(){
+  const ts=window._tx;if(!ts)return;
+  const p=DB.products.find(x=>x.id===ts.pid);if(!p)return;
+  const isSale=ts.type==='sale';
+  const qty=Math.max(0,Math.floor(Number((document.getElementById('txQty')||{}).value)||0));
+  const pe=document.getElementById('txPrice');
+  const price=pe?(Number(pe.value)||0):0;
+  const total=isSale?price*qty:p.cost*qty;
+  const el=document.getElementById('txTotal');if(el)el.textContent='¥'+total.toFixed(2);
+  const after=isSale?(p.stock-qty):(p.stock+qty);
+  const a2=document.getElementById('txAfter');
+  if(a2)a2.innerHTML=isSale
+    ?('卖出后库存：<b style="color:'+(after<0?'var(--error)':'var(--ink2)')+'">'+after+'</b>'+(after<0?'（超出库存，会记为负数）':''))
+    :('补货后库存：<b>'+after+'</b>');
 }
+function confirmTx(type,pid,label){
+  const p=DB.products.find(x=>x.id===pid);if(!p){toast('商品不存在');return;}
+  const qty=Math.floor(Number((document.getElementById('txQty')||{}).value)||0);
+  if(qty<=0){toast('数量需大于 0');return;}
+  const isSale=type==='sale';
+  if(isSale&&qty>p.stock){if(!confirm('「'+p.name+'」库存只有 '+p.stock+'，仍记为卖出 '+qty+' 吗？'))return;}
+  const price=isSale?(Number((document.getElementById('txPrice')||{}).value)||0):0;
+  const amount=isSale?price*qty:p.cost*qty;
+  const note=(document.getElementById('txNote')||{}).value||'';
+  /* 卖出日期：默认今天；允许补记到过去（隔天忘了记）。未来日期不接受，非法值一律回退到今天。 */
+  let date=todayISO();
+  if(isSale){
+    const dv=String((document.getElementById('txDate')||{}).value||'').slice(0,10);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(dv)) date=dv;
+    if(date>todayISO()) date=todayISO();
+  }
+  const late=isSale&&date!==todayISO();
+  /* 补记最容易出的事故是「重复记」：那天其实已经记过了，再记一遍库存就少扣。
+     所以只在补记时问一句；当天同一商品卖好几件是正常生意，不打扰。 */
+  if(late){
+    const dup=DB.tx.filter(t=>t.productId===pid&&t.type==='sale'&&t.date===date);
+    if(dup.length){
+      const dq=dup.reduce((s,t)=>s+Number(t.qty||0),0);
+      if(!confirm('「'+p.name+'」在 '+date.slice(5)+' 已经记过 '+dq+' 件卖出。\n再记一笔会重复扣库存，确定要记吗？')) return;
+    }
+  }
+  /* 记账与改库存是同一次原子动作：pushMove 里同时写流水 + 改库存，两者不可能不一致 */
+  pushMove(p,isSale?'sale':'purchase',qty,note,{amount:amount,date:date});
+  const after=p.stock;
+  const drift=stockDrift(p,DB);                 // 记完立刻自证一次
+  save();closeSheet();
+  const okMsg=isSale?(late?('已补记「'+p.name+'」'+date.slice(5).replace('-','月')+'日的 '+qty+' 件，剩余库存 '+after)
+                          :('已卖出「'+p.name+'」'+qty+' 件，剩余库存 '+after))
+    :((label==='补货'?'已补货「':'已进货「')+p.name+'」'+qty+' 件，库存 '+after);
+  toast(drift===0?okMsg:('⚠ 已记账，但库存校验未通过，请到「商品 → 库存盘点」核对'));
+  render();
+}
+function closeSheet(){document.querySelectorAll('.mask,.sheet').forEach(e=>e.remove());window._tx=null;window._pick=null;}
 
 /* 商品增改删 */
 function openAdd(){openProductSheet('');}
@@ -1090,12 +1650,31 @@ function saveProduct(editId){
   if(!name){toast('请填写商品名称');return;}
   const f=document.getElementById('pImg').files[0];
   const finish=(img)=>{
-    const data={name,cat:(document.getElementById('pCat').value||'').trim(),cost:Number(document.getElementById('pCost').value)||0,price:Number(document.getElementById('pPrice').value)||0,stock:Number(document.getElementById('pStock').value)||0,safetyStock:Number(document.getElementById('pSafe').value)||0,unit:'个',image:img};
-    if(editId){Object.assign(DB.products.find(x=>x.id===editId),data);}else{DB.products.push({id:uid(),createdAt:Date.now(),...data});}
-    save();closeSheet();toast((editId?'已保存「':'已添加「')+name+'」');render();
+    const stockEl=document.getElementById('pStock');
+    const newStock=stockEl?(Number(stockEl.value)||0):0;
+    const data={name:name,cat:(document.getElementById('pCat').value||'').trim(),cost:Number(document.getElementById('pCost').value)||0,price:Number(document.getElementById('pPrice').value)||0,safetyStock:Number(document.getElementById('pSafe').value)||0,unit:'个',image:img};
+    let msg='',drift=0;
+    if(editId){
+      const p=DB.products.find(x=>x.id===editId);
+      Object.assign(p,data);
+      /* 手动改库存不允许"悄悄改"：差额自动记成一笔「库存调整」，等式照样成立、事后查得到 */
+      if(Number(p.stock||0)!==newStock){
+        setStockTo(p,newStock,'编辑商品时手改库存');
+        msg='已保存「'+name+'」，库存已由手改同步为 '+p.stock+'（并记了一笔调整）';
+      }else{
+        msg='已保存「'+name+'」';
+      }
+      drift=stockDrift(p,DB);
+    }else{
+      /* 新增商品：这个数就是「期初库存」，是库存恒等式的起点 */
+      DB.products.push(Object.assign({id:uid(),createdAt:Date.now(),stock:newStock,baseStock:newStock},data));
+      msg='已添加「'+name+'」，期初库存 '+newStock;
+    }
+    save();closeSheet();
+    toast(drift===0?msg:'⚠ 已保存，但库存校验未通过，请盘点');
+    render();
   };
   if(f){compressImage(f,finish);}else{
-    // 编辑时若未重新选图，保留原图
     if(editId){const orig=DB.products.find(x=>x.id===editId);finish(orig.image||'');}else finish('');
   }
 }
@@ -1159,16 +1738,23 @@ function confirmImport(){
   const catEl=document.getElementById('impCat');
   let catVal=catEl?catEl.value.trim():'';if(catVal==='__new__')catVal='';
   (window._imp||[]).forEach(it=>{const name=(it.name||'').trim();if(!name){skip++;return;}if(DB.products.some(p=>p.name===name)){skip++;return;}
-    DB.products.push({id:uid(),createdAt:Date.now(),name,cat:catVal,cost:Number(it.cost)||0,price:Number(it.price)||0,stock:Number(it.stock)||0,safetyStock:defSafe,unit:'个',image:it.image||''});added++;});
+    const impStock=Number(it.stock)||0;
+    DB.products.push({id:uid(),createdAt:Date.now(),name,cat:catVal,cost:Number(it.cost)||0,price:Number(it.price)||0,stock:impStock,baseStock:impStock,safetyStock:defSafe,unit:'个',image:it.image||''});added++;});
   save();closeSheet();toast('导入 '+added+' 个'+(skip?(' 跳过'+skip):''));render();
 }
 function preview(img){if(img)window.open(img,'_blank');}
 
+/* 兼容旧调用名 */
+function openSheet(type,pid,label){openPick(type,pid,label);}
+
 /* ============ 启动 ============ */
 load();
+snapshotDaily();        // 每天第一次打开自动留一份快照，出问题能退回去
+bindStorageSync();      // 监听其他窗口的改动，防止两边互相覆盖把库存写坏
 document.getElementById('fab').style.display='block';
 renderTabbar();
 try { render(); } catch (err) { showFatal((err && err.stack) || (err && err.message) || err); }
+renderAlertBar();
 </script>
 <script>
   /* 彻底移除 Service Worker：之前正是它在部分手机上把页面缓存成空白。
